@@ -1,18 +1,28 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Stage, Layer } from 'react-konva';
 import type Konva from 'konva';
 import { useCanvasStore } from '@/store/canvasStore';
 import { useCanvas } from '@/hooks/useCanvas';
 import { CanvasGrid } from './CanvasGrid';
+import { CanvasObjectItem } from './CanvasObject';
+import type { CanvasObject } from '@/types/canvas';
 
 export interface InfiniteCanvasProps {
+  objects?: CanvasObject[];
+  selectedObjectIds?: string[];
+  onSelectObject?: (id: string, multiSelect: boolean) => void;
+  onUpdateObject?: (id: string, attrs: Partial<CanvasObject>) => void;
   children?: React.ReactNode;
-  onStageClick?: (e: Konva.KonvaEventObject<MouseEvent>) => void;
+  onStageClick?: (e: Konva.KonvaEventObject<any>) => void;
 }
 
 export const InfiniteCanvas: React.FC<InfiniteCanvasProps> = ({
+  objects = [],
+  selectedObjectIds = [],
+  onSelectObject,
+  onUpdateObject,
   children,
   onStageClick,
 }) => {
@@ -23,7 +33,6 @@ export const InfiniteCanvas: React.FC<InfiniteCanvasProps> = ({
   const camera = useCanvasStore((state) => state.camera);
   const activeTool = useCanvasStore((state) => state.activeTool);
   const clearSelection = useCanvasStore((state) => state.clearSelection);
-  const panBy = useCanvasStore((state) => state.panBy);
 
   const { handleWheel } = useCanvas();
 
@@ -44,7 +53,11 @@ export const InfiniteCanvas: React.FC<InfiniteCanvasProps> = ({
   // Track Spacebar for temporary pan tool override
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.code === 'Space' && !isSpacePressed && !(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)) {
+      if (
+        e.code === 'Space' &&
+        !isSpacePressed &&
+        !(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)
+      ) {
         e.preventDefault();
         setIsSpacePressed(true);
       }
@@ -64,63 +77,53 @@ export const InfiniteCanvas: React.FC<InfiniteCanvasProps> = ({
     };
   }, [isSpacePressed]);
 
-  // Stage click handler (deselect when clicking blank canvas background)
-  const handleStageClick = useCallback(
-    (e: Konva.KonvaEventObject<MouseEvent>) => {
-      const clickedOnStage = e.target === e.target.getStage();
-      if (clickedOnStage) {
-        clearSelection();
-      }
-      if (onStageClick) {
-        onStageClick(e);
-      }
-    },
-    [clearSelection, onStageClick]
-  );
+  // Handle stage click (deselect when clicking empty space)
+  const handleStageClick = (e: Konva.KonvaEventObject<MouseEvent>) => {
+    if (e.target === stageRef.current || e.target.name() === 'canvas-grid-bg') {
+      clearSelection();
+    }
+    if (onStageClick) {
+      onStageClick(e);
+    }
+  };
 
-  // Stage DragEnd for panning
-  const isPanningMode = activeTool === 'pan' || isSpacePressed;
+  const isPanningActive = activeTool === 'pan' || isSpacePressed;
 
   return (
-    <div
-      className={`relative w-full h-full overflow-hidden select-none bg-slate-950 ${
-        isPanningMode ? 'cursor-grab active:cursor-grabbing' : 'cursor-crosshair'
-      }`}
-    >
+    <div className="relative w-full h-full overflow-hidden bg-[#070709]">
       <Stage
         ref={stageRef}
         width={dimensions.width}
         height={dimensions.height}
+        x={camera.x}
+        y={camera.y}
+        scaleX={camera.scale}
+        scaleY={camera.scale}
+        draggable={isPanningActive}
         onWheel={handleWheel}
         onClick={handleStageClick}
-        draggable={isPanningMode}
-        onDragMove={(e) => {
-          if (isPanningMode && e.target === stageRef.current) {
-            const dx = -e.evt.movementX / camera.scale;
-            const dy = -e.evt.movementY / camera.scale;
-            panBy(dx, dy);
-            // Lock stage position so camera offset manages transform
-            stageRef.current.position({ x: 0, y: 0 });
-          }
+        onTap={handleStageClick as any}
+        style={{
+          cursor: isPanningActive ? 'grab' : activeTool === 'select' ? 'default' : 'crosshair',
         }}
       >
-        {/* Layer 1: Infinite Grid Background */}
-        <CanvasGrid camera={camera} stageSize={dimensions} />
+        {/* Background Infinite Grid Layer */}
+        <CanvasGrid stageSize={dimensions} camera={camera} />
 
-        {/* Layer 2: Main Canvas Objects (Children) */}
-        <Layer>{children}</Layer>
+        {/* Dynamic Canvas Objects Layer */}
+        <Layer>
+          {objects.map((obj) => (
+            <CanvasObjectItem
+              key={obj.id}
+              object={obj}
+              isSelected={selectedObjectIds.includes(obj.id)}
+              onSelect={(id, multi) => onSelectObject && onSelectObject(id, multi)}
+              onChange={(id, attrs) => onUpdateObject && onUpdateObject(id, attrs)}
+            />
+          ))}
+          {children}
+        </Layer>
       </Stage>
-
-      {/* Floating Canvas Controls (Zoom Info & Reset) */}
-      <div className="absolute bottom-6 left-6 z-20 flex items-center gap-2 glass-panel p-1.5 px-3 text-xs text-slate-300 font-mono border border-slate-800 shadow-xl">
-        <span className="font-bold text-indigo-400">
-          {Math.round(camera.scale * 100)}%
-        </span>
-        <span className="text-slate-600">|</span>
-        <span>
-          X: {Math.round(camera.x)} Y: {Math.round(camera.y)}
-        </span>
-      </div>
     </div>
   );
 };

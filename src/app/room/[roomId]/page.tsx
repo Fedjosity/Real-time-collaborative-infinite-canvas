@@ -3,7 +3,6 @@
 import React, { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { CanvasStage } from '@/components/canvas/CanvasStage';
-import { CanvasObjectItem } from '@/components/canvas/CanvasObject';
 import { CursorOverlay } from '@/components/canvas/CursorOverlay';
 import { Toolbar } from '@/components/toolbar/Toolbar';
 import { JoinModal } from '@/components/auth/JoinModal';
@@ -162,17 +161,12 @@ export default function RoomPage({ params }: RoomPageProps) {
 
       {/* Main Canvas Component */}
       <div className="flex-1 w-full h-full relative">
-        <CanvasStage>
-          {objects.map((obj) => (
-            <CanvasObjectItem
-              key={obj.id}
-              object={obj}
-              isSelected={selectedObjectIds.includes(obj.id)}
-              onSelect={(id, multi) => selectObject(id, multi)}
-              onChange={(id, attrs) => updateObject(id, attrs)}
-            />
-          ))}
-        </CanvasStage>
+        <CanvasStage
+          objects={objects}
+          selectedObjectIds={selectedObjectIds}
+          onSelectObject={(id, multi) => selectObject(id, multi)}
+          onUpdateObject={(id, attrs) => updateObject(id, attrs)}
+        />
 
         {/* Live User Presence Cursors Overlay */}
         <CursorOverlay users={remoteUsers} camera={camera} />
