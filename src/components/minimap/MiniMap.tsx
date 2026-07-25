@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { CanvasObject, Camera, BoundingBox } from '@/types/canvas';
 import type { User } from '@/types/room';
 import { useCanvasStore } from '@/store/canvasStore';
@@ -19,9 +19,15 @@ export const MiniMap: React.FC<MiniMapProps> = ({
   width = 200,
   height = 140,
 }) => {
+  const [mounted, setMounted] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
+
   const camera = useCanvasStore((state) => state.camera);
   const setCamera = useCanvasStore((state) => state.setCamera);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Compute total bounding area enclosing all canvas objects
   const computeCanvasBounds = useCallback((): BoundingBox => {
@@ -41,7 +47,6 @@ export const MiniMap: React.FC<MiniMapProps> = ({
       maxY = Math.max(maxY, obj.y + obj.height);
     });
 
-    // Add padding around canvas content bounds
     const padding = 500;
     return {
       minX: Math.min(-2000, minX - padding),
@@ -51,24 +56,30 @@ export const MiniMap: React.FC<MiniMapProps> = ({
     };
   }, [objects]);
 
+  if (!mounted) {
+    return (
+      <div
+        className="glass-panel bg-[#0e0e12]/95 border border-amber-500/30 rounded-xl"
+        style={{ width: `${width}px`, height: `${height}px` }}
+      />
+    );
+  }
+
   const bounds = computeCanvasBounds();
   const boundsWidth = bounds.maxX - bounds.minX;
   const boundsHeight = bounds.maxY - bounds.minY;
 
-  // Scale factors to map world coordinates (x, y) into mini-map pixel dimensions
   const scaleX = width / boundsWidth;
   const scaleY = height / boundsHeight;
 
-  // World to MiniMap coordinate conversion
   const worldToMiniMap = (x: number, y: number) => ({
     x: (x - bounds.minX) * scaleX,
     y: (y - bounds.minY) * scaleY,
   });
 
-  // Calculate local camera viewport box on Mini-Map
   const viewportWorldTL = screenToWorld({ x: 0, y: 0 }, camera);
   const viewportWorldBR = screenToWorld(
-    { x: typeof window !== 'undefined' ? window.innerWidth : 1920, y: typeof window !== 'undefined' ? window.innerHeight : 1080 },
+    { x: window.innerWidth, y: window.innerHeight },
     camera
   );
 
@@ -78,20 +89,17 @@ export const MiniMap: React.FC<MiniMapProps> = ({
   const vpWidth = Math.max(16, vpMiniBR.x - vpMiniTL.x);
   const vpHeight = Math.max(12, vpMiniBR.y - vpMiniTL.y);
 
-  // Handle clicking on Mini-Map to immediately pan camera center
   const handleMiniMapClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
     const clickY = e.clientY - rect.top;
 
-    // Convert click position to world coordinates
     const targetWorldX = bounds.minX + clickX / scaleX;
     const targetWorldY = bounds.minY + clickY / scaleY;
 
-    // Center camera on target position
-    const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1920;
-    const screenHeight = typeof window !== 'undefined' ? window.innerHeight : 1080;
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
 
     setCamera({
       ...camera,

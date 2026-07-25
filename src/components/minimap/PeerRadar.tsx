@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import type { User } from '@/types/room';
 import type { Camera } from '@/types/canvas';
 import { worldToScreen } from '@/lib/canvas/viewport';
@@ -11,8 +11,16 @@ export interface PeerRadarProps {
 }
 
 export const PeerRadar: React.FC<PeerRadarProps> = ({ users, camera }) => {
-  const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1920;
-  const screenHeight = typeof window !== 'undefined' ? window.innerHeight : 1080;
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
+  const screenWidth = window.innerWidth;
+  const screenHeight = window.innerHeight;
   const padding = 40;
 
   // Filter for off-screen remote peers with known positions

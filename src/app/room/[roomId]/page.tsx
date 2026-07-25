@@ -7,6 +7,7 @@ import { CursorOverlay } from '@/components/canvas/CursorOverlay';
 import { MiniMap } from '@/components/minimap/MiniMap';
 import { PeerRadar } from '@/components/minimap/PeerRadar';
 import { Toolbar } from '@/components/toolbar/Toolbar';
+import { OfflineBanner } from '@/components/ui/OfflineBanner';
 import { JoinModal } from '@/components/auth/JoinModal';
 import { Button } from '@/components/ui/Button';
 import { useYjs } from '@/hooks/useYjs';
@@ -175,6 +176,9 @@ export default function RoomPage({ params }: RoomPageProps) {
 
         {/* Off-Screen Peer Spatial Radar */}
         <PeerRadar users={remoteUsers} camera={camera} />
+
+        {/* Offline Notification Banner */}
+        <OfflineBanner />
 
         {/* Floating Creative Toolbar */}
         <Toolbar onAddObject={handleAddObjectFromToolbar} />
