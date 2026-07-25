@@ -87,7 +87,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({ onAddObject }) => {
   ];
 
   return (
-    <div className="fixed left-6 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-3 glass-panel p-2 bg-slate-950/80 border border-slate-800 shadow-2xl rounded-2xl">
+    <div className="fixed left-6 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-3 glass-panel p-2 bg-[#0e0e12]/90 border border-amber-500/30 shadow-2xl rounded-2xl">
       {/* Hidden File Input for Image Upload */}
       <input
         type="file"

@@ -1,171 +1,123 @@
 /**
  * =============================================================================
- * Color Utilities
+ * Color Palettes & Utilities
  * =============================================================================
  *
- * Color palettes and utilities for user identification, cursor colors,
- * and the canvas color picker.
- *
- * Design principles:
- * - User colors are vibrant and distinguishable from each other
- * - Canvas colors include both vibrant and muted options
- * - All colors meet WCAG AA contrast requirements on dark backgrounds
+ * Defines luxury Gold & Obsidian Black branding color palettes:
+ * - USER_COLORS: 20 distinct presence cursor colors for concurrent users
+ * - CANVAS_OBJECT_COLORS: Preset color options for canvas shapes & sticky notes
+ * - Color transformation math (hexToRgba, contrast, lighten, darken)
  *
  * @module lib/utils/colors
  */
 
-// ─── User Color Palette ─────────────────────────────────────────────────────
-
 /**
- * Colors assigned to users for cursor and avatar display.
- * These are specifically chosen to be:
- * 1. Easily distinguishable from each other
- * 2. Visible on both dark and light canvas backgrounds
- * 3. Pleasing and non-harsh
- *
- * Supports up to 20 concurrent users (matching max room size).
+ * 20 distinct colors for user presence cursors & avatars.
  */
 export const USER_COLORS: readonly string[] = [
-  '#EF4444', // Red
-  '#F97316', // Orange
-  '#F59E0B', // Amber
-  '#84CC16', // Lime
-  '#22C55E', // Green
-  '#14B8A6', // Teal
-  '#06B6D4', // Cyan
-  '#3B82F6', // Blue
-  '#6366F1', // Indigo
-  '#8B5CF6', // Violet
-  '#A855F7', // Purple
-  '#D946EF', // Fuchsia
-  '#EC4899', // Pink
-  '#F43F5E', // Rose
-  '#0EA5E9', // Sky
+  '#D4AF37', // Metallic Gold
+  '#F59E0B', // Amber Gold
+  '#EAB308', // Yellow Gold
+  '#F59E0B', // Warm Amber
+  '#EC4899', // Rose Pink
   '#10B981', // Emerald
-  '#FBBF24', // Yellow
-  '#FB923C', // Light Orange
-  '#A78BFA', // Light Purple
-  '#34D399', // Light Teal
+  '#38BDF8', // Sky Blue
+  '#A855F7', // Imperial Purple
+  '#F97316', // Bronze Orange
+  '#06B6D4', // Cyan
+  '#84CC16', // Lime Gold
+  '#6366F1', // Indigo Accent
+  '#F43F5E', // Ruby Red
+  '#14B8A6', // Teal
+  '#E11D48', // Crimson
+  '#8B5CF6', // Violet
+  '#D97706', // Deep Gold
+  '#0EA5E9', // Deep Sky
+  '#22C55E', // Green
+  '#C084FC', // Soft Lavender
 ] as const;
 
 /**
- * Get a deterministic user color based on index.
- * Wraps around if index exceeds palette length.
- *
- * @param index - User index (typically based on join order)
- * @returns Hex color string
+ * Palette of preset fill colors for shapes, text, and sticky notes.
+ */
+export const CANVAS_OBJECT_COLORS: readonly string[] = [
+  '#D4AF37', // Metallic Gold
+  '#F59E0B', // Warm Amber
+  '#FEF08A', // Soft Pastel Gold
+  '#0F172A', // Obsidian Surface
+  '#1E293B', // Slate Dark
+  '#334155', // Muted Obsidian
+  '#EF4444', // Crimson Red
+  '#F97316', // Bronze
+  '#10B981', // Emerald
+  '#06B6D4', // Cyan
+  '#3B82F6', // Sapphire Blue
+  '#8B5CF6', // Amethyst Purple
+  '#EC4899', // Rose Pink
+  '#FFFFFF', // Pure White
+] as const;
+
+export const ALL_CANVAS_COLORS = CANVAS_OBJECT_COLORS;
+
+/**
+ * Get user color by index.
  */
 export function getUserColor(index: number): string {
-  return USER_COLORS[index % USER_COLORS.length] ?? '#6366F1';
+  return USER_COLORS[Math.abs(index) % USER_COLORS.length] || '#D4AF37';
 }
 
 /**
- * Get a random user color for initial assignment.
- *
- * @returns Hex color string
+ * Pick a random user presence color from the palette.
  */
 export function getRandomUserColor(): string {
-  const randomIndex = Math.floor(Math.random() * USER_COLORS.length);
-  return USER_COLORS[randomIndex] ?? '#6366F1';
+  const index = Math.floor(Math.random() * USER_COLORS.length);
+  return USER_COLORS[index] || '#D4AF37';
 }
 
-// ─── Canvas Color Palette ───────────────────────────────────────────────────
-
 /**
- * Colors available in the canvas color picker.
- * Organized by hue for intuitive selection.
+ * Convert 6-digit hex color string to RGBA CSS string.
  */
-export const CANVAS_COLORS = {
-  /** Gray scale */
-  grays: [
-    '#FFFFFF', '#F1F5F9', '#CBD5E1', '#94A3B8',
-    '#64748B', '#475569', '#1E293B', '#0F172A',
-  ],
-  /** Vibrant colors */
-  vibrant: [
-    '#EF4444', '#F97316', '#EAB308', '#22C55E',
-    '#14B8A6', '#3B82F6', '#8B5CF6', '#EC4899',
-  ],
-  /** Pastel colors */
-  pastel: [
-    '#FCA5A5', '#FDBA74', '#FDE047', '#86EFAC',
-    '#5EEAD4', '#93C5FD', '#C4B5FD', '#F9A8D4',
-  ],
-  /** Dark/rich colors */
-  dark: [
-    '#991B1B', '#9A3412', '#854D0E', '#166534',
-    '#115E59', '#1E40AF', '#5B21B6', '#9D174D',
-  ],
-} as const;
-
-/**
- * Flat list of all canvas colors for simple iteration.
- */
-export const ALL_CANVAS_COLORS: readonly string[] = [
-  ...CANVAS_COLORS.grays,
-  ...CANVAS_COLORS.vibrant,
-  ...CANVAS_COLORS.pastel,
-  ...CANVAS_COLORS.dark,
-] as const;
-
-// ─── Color Utilities ────────────────────────────────────────────────────────
-
-/**
- * Convert a hex color to RGBA with opacity.
- *
- * @param hex - Hex color string (e.g., '#EF4444')
- * @param opacity - Opacity value (0-1)
- * @returns RGBA string (e.g., 'rgba(239, 68, 68, 0.5)')
- */
-export function hexToRgba(hex: string, opacity: number): string {
-  // Remove # if present
+export function hexToRgba(hex: string, alpha = 1.0): string {
   const cleanHex = hex.replace('#', '');
+  if (cleanHex.length !== 6) return `rgba(212, 175, 55, ${alpha})`;
 
   const r = parseInt(cleanHex.substring(0, 2), 16);
   const g = parseInt(cleanHex.substring(2, 4), 16);
   const b = parseInt(cleanHex.substring(4, 6), 16);
 
-  return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
 /**
- * Determine whether text on a given background color should be light or dark.
- * Uses the W3C relative luminance formula.
- *
- * @param bgColor - Background hex color
- * @returns '#FFFFFF' for dark backgrounds, '#0F172A' for light backgrounds
+ * Compute readable text color (black or white) given a background hex color.
  */
-export function getContrastTextColor(bgColor: string): string {
-  const cleanHex = bgColor.replace('#', '');
+export function getContrastingTextColor(bgHex: string): '#0F172A' | '#FFFFFF' {
+  const cleanHex = bgHex.replace('#', '');
+  if (cleanHex.length !== 6) return '#FFFFFF';
 
   const r = parseInt(cleanHex.substring(0, 2), 16);
   const g = parseInt(cleanHex.substring(2, 4), 16);
   const b = parseInt(cleanHex.substring(4, 6), 16);
 
-  // W3C relative luminance formula
+  // Relative luminance formula (WCAG 2.0)
   const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-
-  return luminance > 0.5 ? '#0F172A' : '#FFFFFF';
+  return luminance > 0.6 ? '#0F172A' : '#FFFFFF';
 }
 
+export const getContrastTextColor = getContrastingTextColor;
+
 /**
- * Lighten a hex color by a percentage.
- * Useful for hover states and subtle variations.
- *
- * @param hex - Base hex color
- * @param percent - How much to lighten (0-100)
- * @returns Lightened hex color
+ * Lighten a hex color by a given percentage.
  */
 export function lightenColor(hex: string, percent: number): string {
   const cleanHex = hex.replace('#', '');
+  if (cleanHex.length !== 6) return hex;
 
-  let r = parseInt(cleanHex.substring(0, 2), 16);
-  let g = parseInt(cleanHex.substring(2, 4), 16);
-  let b = parseInt(cleanHex.substring(4, 6), 16);
+  const num = parseInt(cleanHex, 16);
+  const amt = Math.round(255 * (percent / 100));
+  const R = Math.min(255, Math.max(0, (num >> 16) + amt));
+  const G = Math.min(255, Math.max(0, ((num >> 8) & 0x00ff) + amt));
+  const B = Math.min(255, Math.max(0, (num & 0x0000ff) + amt));
 
-  r = Math.min(255, Math.round(r + (255 - r) * (percent / 100)));
-  g = Math.min(255, Math.round(g + (255 - g) * (percent / 100)));
-  b = Math.min(255, Math.round(b + (255 - b) * (percent / 100)));
-
-  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+  return `#${((1 << 24) + (R << 16) + (G << 8) + B).toString(16).slice(1)}`;
 }

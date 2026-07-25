@@ -50,17 +50,17 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="relative min-h-screen w-full bg-[#090d16] text-slate-100 flex flex-col items-center justify-between overflow-x-hidden bg-grid-pattern">
-      {/* Background Glow Effects */}
-      <div className="absolute top-[-10%] left-[25%] w-[500px] h-[500px] bg-indigo-600/15 rounded-full blur-[140px] pointer-events-none animate-glow" />
-      <div className="absolute bottom-[-10%] right-[20%] w-[450px] h-[450px] bg-pink-600/10 rounded-full blur-[140px] pointer-events-none animate-glow" />
+    <div className="relative min-h-screen w-full bg-[#070709] text-slate-100 flex flex-col items-center justify-between overflow-x-hidden bg-grid-pattern">
+      {/* Gold Glow Background Effects */}
+      <div className="absolute top-[-10%] left-[25%] w-[500px] h-[500px] bg-amber-500/10 rounded-full blur-[140px] pointer-events-none animate-glow" />
+      <div className="absolute bottom-[-10%] right-[20%] w-[450px] h-[450px] bg-yellow-600/10 rounded-full blur-[140px] pointer-events-none animate-glow" />
 
       {/* Navigation Header */}
       <header className="relative z-10 w-full max-w-7xl mx-auto px-8 py-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-            <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-400 via-amber-500 to-yellow-600 flex items-center justify-center shadow-lg shadow-amber-500/20 border border-amber-300/40">
+            <svg className="w-6 h-6 text-slate-950" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
             </svg>
           </div>
           <span className="font-bold text-xl tracking-tight text-white font-display">
@@ -69,8 +69,8 @@ export default function LandingPage() {
         </div>
 
         <div className="flex items-center gap-4">
-          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 mr-2 animate-ping" />
+          <span className="inline-flex items-center px-3.5 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-300 border border-amber-500/30">
+            <span className="w-2 h-2 rounded-full bg-amber-400 mr-2 animate-ping" />
             Real-Time Engine Ready
           </span>
         </div>
@@ -78,8 +78,8 @@ export default function LandingPage() {
 
       {/* Center Hero Section */}
       <main className="relative z-10 w-full max-w-4xl mx-auto px-6 py-8 flex flex-col items-center text-center my-auto">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-950/80 border border-indigo-500/30 text-indigo-300 text-xs font-semibold uppercase tracking-wider mb-6">
-          ✨ NEXT-GEN COLLABORATIVE CANVAS
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-950/40 border border-amber-500/30 text-amber-300 text-xs font-semibold uppercase tracking-wider mb-6">
+          ✨ LUXURY COLLABORATIVE WORKSPACE
         </div>
 
         <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold font-display tracking-tight leading-[1.1] mb-6">
@@ -89,23 +89,23 @@ export default function LandingPage() {
 
         <p className="text-base sm:text-lg text-slate-300 max-w-2xl font-light leading-relaxed mb-10 mx-auto">
           An interactive 2D spatial workspace built for creative teams. Throw objects with{' '}
-          <strong className="text-indigo-400 font-normal">Matter.js physics</strong>, record live audio notes, replay history with{' '}
-          <strong className="text-pink-400 font-normal">Time Travel</strong>, and work offline seamlessly.
+          <strong className="text-amber-400 font-normal">Matter.js physics</strong>, record live audio notes, replay history with{' '}
+          <strong className="text-amber-300 font-normal">Time Travel</strong>, and work offline seamlessly.
         </p>
 
         {/* Action Form Card */}
-        <div className="w-full max-w-md mx-auto glass-panel p-6 sm:p-8 mb-12 border border-slate-800 flex flex-col items-center">
+        <div className="w-full max-w-md mx-auto glass-panel p-6 sm:p-8 mb-12 border border-amber-500/30 flex flex-col items-center">
           <div className="flex flex-col gap-5 w-full">
             {/* Create Room Button */}
             <Button
               variant="primary"
               size="lg"
-              className="w-full text-base font-semibold h-12 shadow-lg shadow-indigo-500/25"
+              className="w-full text-base font-bold h-12 shadow-lg shadow-amber-500/20"
               isLoading={isCreating}
               onClick={handleCreateRoom}
               icon={
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                <svg className="w-5 h-5 text-slate-950" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
                 </svg>
               }
             >
@@ -115,9 +115,9 @@ export default function LandingPage() {
             {/* Divider */}
             <div className="relative flex items-center justify-center w-full my-1">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-800" />
+                <div className="w-full border-t border-amber-500/20" />
               </div>
-              <span className="relative px-3 text-[11px] uppercase font-semibold text-slate-400 bg-[#0f172a] rounded-full border border-slate-800">
+              <span className="relative px-3 text-[11px] uppercase font-semibold text-amber-200/80 bg-[#0e0e12] rounded-full border border-amber-500/30">
                 OR JOIN EXISTING
               </span>
             </div>
@@ -149,37 +149,37 @@ export default function LandingPage() {
 
         {/* Feature Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full max-w-5xl mx-auto text-left">
-          <div className="glass-panel p-6 border border-slate-800/80 hover:border-indigo-500/40 transition-colors">
-            <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mb-4">
+          <div className="glass-panel p-6 border border-amber-500/20 hover:border-amber-400/50 transition-colors">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center mb-4">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
-            <h3 className="text-base font-bold text-white mb-2">Matter.js Physics</h3>
+            <h3 className="text-base font-bold text-amber-200 mb-2">Matter.js Physics</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
               Throw shapes and cards across the canvas. Objects collide, attract, and repel in real-time.
             </p>
           </div>
 
-          <div className="glass-panel p-6 border border-slate-800/80 hover:border-pink-500/40 transition-colors">
-            <div className="w-10 h-10 rounded-xl bg-pink-500/10 border border-pink-500/20 text-pink-400 flex items-center justify-center mb-4">
+          <div className="glass-panel p-6 border border-amber-500/20 hover:border-amber-400/50 transition-colors">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center mb-4">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h3 className="text-base font-bold text-white mb-2">Time-Travel Replay</h3>
+            <h3 className="text-base font-bold text-amber-200 mb-2">Time-Travel Replay</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
               Replay entire brainstorming sessions frame-by-frame with timeline scrubbers and speed control.
             </p>
           </div>
 
-          <div className="glass-panel p-6 border border-slate-800/80 hover:border-emerald-500/40 transition-colors">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mb-4">
+          <div className="glass-panel p-6 border border-amber-500/20 hover:border-amber-400/50 transition-colors">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center mb-4">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2v1a2 2 0 002 2h1.5a2.5 2.5 0 002.5-2.5V11a2 2 0 00-2-2h-1a2 2 0 01-2-2V4.07M15 2a9 9 0 100 18 9 9 0 000-18z" />
               </svg>
             </div>
-            <h3 className="text-base font-bold text-white mb-2">Offline Sync & Radar</h3>
+            <h3 className="text-base font-bold text-amber-200 mb-2">Offline Sync & Radar</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
               Keep working when disconnected with IndexedDB persistence. Track peer viewports on the Mini-Map Radar.
             </p>
@@ -188,7 +188,7 @@ export default function LandingPage() {
       </main>
 
       {/* Footer */}
-      <footer className="relative z-10 w-full border-t border-slate-900/80 py-4 text-center text-[11px] text-slate-500">
+      <footer className="relative z-10 w-full border-t border-amber-500/15 py-4 text-center text-[11px] text-amber-200/50">
         CollabCanvas &copy; {new Date().getFullYear()} — Built for High Score Performance
       </footer>
     </div>

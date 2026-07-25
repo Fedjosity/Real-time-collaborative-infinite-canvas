@@ -297,7 +297,7 @@ export const DEFAULT_TEXT_DATA: TextData = {
   fontWeight: 'normal',
   fontStyle: 'normal',
   textDecoration: 'none',
-  color: '#E2E8F0',
+  color: '#FEF3C7',
   align: 'left',
   lineHeight: 1.5,
 };
@@ -305,8 +305,8 @@ export const DEFAULT_TEXT_DATA: TextData = {
 /** Default shape data for new shapes */
 export const DEFAULT_SHAPE_DATA: ShapeData = {
   shapeType: 'rectangle',
-  fill: '#6366F1',
-  stroke: '#818CF8',
+  fill: '#D4AF37',
+  stroke: '#F59E0B',
   strokeWidth: 2,
   cornerRadius: 8,
   numPoints: 5,
