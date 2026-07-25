@@ -43,3 +43,6 @@ uploads/
 # Misc
 *.tsbuildinfo
 next-env.d.ts
+
+#Agents
+.agent/
