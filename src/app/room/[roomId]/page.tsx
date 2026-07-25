@@ -8,6 +8,7 @@ import { MiniMap } from '@/components/minimap/MiniMap';
 import { PeerRadar } from '@/components/minimap/PeerRadar';
 import { Toolbar } from '@/components/toolbar/Toolbar';
 import { OfflineBanner } from '@/components/ui/OfflineBanner';
+import { TimeTravelBar } from '@/components/timetravel/TimeTravelBar';
 import { JoinModal } from '@/components/auth/JoinModal';
 import { Button } from '@/components/ui/Button';
 import { useYjs } from '@/hooks/useYjs';
@@ -18,6 +19,7 @@ import { useRoomStore } from '@/store/roomStore';
 import { useUIStore } from '@/store/uiStore';
 import { STORAGE_KEYS, type LocalUser } from '@/types/room';
 import { screenToWorld } from '@/lib/canvas/viewport';
+import { createSnapshot, type CanvasSnapshot } from '@/lib/timetravel/snapshots';
 
 export interface RoomPageProps {
   params: Promise<{ roomId: string }>;
@@ -30,6 +32,11 @@ export default function RoomPage({ params }: RoomPageProps) {
   const [localUser, setLocalUser] = useState<LocalUser | null>(null);
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+
+  // Time-Travel Replay State
+  const [isReplaying, setIsReplaying] = useState(false);
+  const [snapshots, setSnapshots] = useState<CanvasSnapshot[]>([]);
+  const [snapshotIndex, setSnapshotIndex] = useState(0);
 
   const camera = useCanvasStore((state) => state.camera);
   const selectedObjectIds = useCanvasStore((state) => state.selectedObjectIds);
@@ -60,6 +67,15 @@ export default function RoomPage({ params }: RoomPageProps) {
     addObject,
     updateObject,
   } = useYjs(roomId, localUser);
+
+  // Record snapshots whenever objects change
+  useEffect(() => {
+    if (objects.length === 0) return;
+    setSnapshots((prev) => {
+      const snap = createSnapshot(objects, localUser?.username || 'Guest');
+      return [...prev.slice(-30), snap]; // Keep last 30 snapshots
+    });
+  }, [objects, localUser]);
 
   // Live Awareness cursor tracking hook
   const { remoteUsers, updateCursor } = useAwareness(awareness, localUser);
@@ -146,6 +162,23 @@ export default function RoomPage({ params }: RoomPageProps) {
             <span>{connectedUsers.length || 1} / 20</span>
           </div>
 
+          {/* Time-Travel Replay Toggle Button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setIsReplaying(!isReplaying);
+              setSnapshotIndex(Math.max(0, snapshots.length - 1));
+            }}
+            icon={
+              <svg className="w-4 h-4 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            }
+          >
+            {isReplaying ? 'Exit Replay' : 'Time Travel'}
+          </Button>
+
           {/* Share Room Button */}
           <Button
             variant="primary"
@@ -165,7 +198,7 @@ export default function RoomPage({ params }: RoomPageProps) {
       {/* Main Canvas Component */}
       <div className="flex-1 w-full h-full relative">
         <CanvasStage
-          objects={objects}
+          objects={isReplaying && snapshots[snapshotIndex] ? snapshots[snapshotIndex].objects : objects}
           selectedObjectIds={selectedObjectIds}
           onSelectObject={(id, multi) => selectObject(id, multi)}
           onUpdateObject={(id, attrs) => updateObject(id, attrs)}
@@ -179,6 +212,16 @@ export default function RoomPage({ params }: RoomPageProps) {
 
         {/* Offline Notification Banner */}
         <OfflineBanner />
+
+        {/* Time-Travel Session Replay Timeline Scrubber Bar */}
+        {isReplaying && (
+          <TimeTravelBar
+            snapshots={snapshots}
+            currentIndex={snapshotIndex}
+            onSelectSnapshot={(index) => setSnapshotIndex(index)}
+            onClose={() => setIsReplaying(false)}
+          />
+        )}
 
         {/* Floating Creative Toolbar */}
         <Toolbar onAddObject={handleAddObjectFromToolbar} />
