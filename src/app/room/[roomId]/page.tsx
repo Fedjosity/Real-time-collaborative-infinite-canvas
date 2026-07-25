@@ -4,6 +4,8 @@ import React, { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { CanvasStage } from '@/components/canvas/CanvasStage';
 import { CursorOverlay } from '@/components/canvas/CursorOverlay';
+import { MiniMap } from '@/components/minimap/MiniMap';
+import { PeerRadar } from '@/components/minimap/PeerRadar';
 import { Toolbar } from '@/components/toolbar/Toolbar';
 import { JoinModal } from '@/components/auth/JoinModal';
 import { Button } from '@/components/ui/Button';
@@ -171,8 +173,16 @@ export default function RoomPage({ params }: RoomPageProps) {
         {/* Live User Presence Cursors Overlay */}
         <CursorOverlay users={remoteUsers} camera={camera} />
 
+        {/* Off-Screen Peer Spatial Radar */}
+        <PeerRadar users={remoteUsers} camera={camera} />
+
         {/* Floating Creative Toolbar */}
         <Toolbar onAddObject={handleAddObjectFromToolbar} />
+
+        {/* Bottom-Right Mini-Map Widget */}
+        <div className="absolute bottom-6 right-6 z-40">
+          <MiniMap objects={objects} users={remoteUsers} />
+        </div>
       </div>
 
       {/* Guest Authentication Join Modal */}
