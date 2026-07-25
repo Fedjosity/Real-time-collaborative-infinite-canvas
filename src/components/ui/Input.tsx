@@ -20,18 +20,18 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             {label}
           </label>
         )}
-        <div className="relative flex items-center">
+        <div className="relative flex items-center w-full">
           {icon && (
-            <div className="absolute left-3 text-slate-400 pointer-events-none flex items-center">
+            <div className="absolute left-3.5 text-slate-400 pointer-events-none flex items-center justify-center">
               {icon}
             </div>
           )}
           <input
             id={inputId}
             ref={ref}
-            className={`w-full bg-slate-900/80 text-slate-100 placeholder-slate-500 text-sm rounded-xl border border-slate-700/60 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 outline-none transition-all duration-200 ${
-              icon ? 'pl-10' : 'px-3.5'
-            } py-2.5 ${error ? 'border-rose-500 focus:border-rose-500' : ''} ${className}`}
+            className={`w-full h-11 bg-slate-900/90 text-slate-100 placeholder-slate-500 text-sm rounded-xl border border-slate-700/80 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 outline-none transition-all duration-150 ${
+              icon ? 'pl-10 pr-3.5' : 'px-3.5'
+            } ${error ? 'border-rose-500 focus:border-rose-500' : ''} ${className}`}
             {...props}
           />
         </div>
