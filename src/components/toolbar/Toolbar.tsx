@@ -4,9 +4,20 @@ import React, { useState, useRef } from 'react';
 import { useCanvasStore } from '@/store/canvasStore';
 import { useUIStore } from '@/store/uiStore';
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
-import { ToolButton } from './ToolButton';
-import { ColorPicker } from './ColorPicker';
 import type { ShapeType } from '@/types/canvas';
+
+// MUI Icons
+import NearMeIcon from '@mui/icons-material/NearMe';
+import PanToolIcon from '@mui/icons-material/PanTool';
+import TitleIcon from '@mui/icons-material/Title';
+import CategoryIcon from '@mui/icons-material/Category';
+import StickyNote2Icon from '@mui/icons-material/StickyNote2';
+import ImageIcon from '@mui/icons-material/Image';
+import MicIcon from '@mui/icons-material/Mic';
+import CleaningServicesIcon from '@mui/icons-material/CleaningServices';
+import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
+import MapIcon from '@mui/icons-material/Map';
+import CircleIcon from '@mui/icons-material/Circle';
 
 export interface ToolbarProps {
   onAddObject?: (type: string, extraData?: Record<string, unknown>) => void;
@@ -24,12 +35,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({ onAddObject }) => {
 
   const toggleMiniMap = useUIStore((state) => state.toggleMiniMap);
   const showMiniMap = useUIStore((state) => state.showMiniMap);
-  const toggleTimeTravelPanel = useUIStore((state) => state.toggleTimeTravelPanel);
-  const showTimeTravelPanel = useUIStore((state) => state.showTimeTravelPanel);
-  const toggleExportPanel = useUIStore((state) => state.toggleExportPanel);
   const addToast = useUIStore((state) => state.addToast);
 
   const [showShapeMenu, setShowShapeMenu] = useState(false);
+  const [showColorPicker, setShowColorPicker] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const { isRecording, startRecording, stopRecording } = useAudioRecorder();
@@ -86,8 +95,12 @@ export const Toolbar: React.FC<ToolbarProps> = ({ onAddObject }) => {
     { type: 'arrow', label: 'Arrow', icon: '➔' },
   ];
 
+  const paletteColors = [
+    '#ffffff', '#0d99ff', '#6d43c6', '#ba1a1a', '#2e7d32', '#ed6c02', '#000000'
+  ];
+
   return (
-    <div className="fixed left-4 top-4 z-40 flex flex-col gap-2.5 glass-panel p-2 bg-[#0e0e12]/95 border border-amber-500/30 shadow-2xl rounded-2xl">
+    <>
       {/* Hidden File Input for Image Upload */}
       <input
         type="file"
@@ -97,199 +110,263 @@ export const Toolbar: React.FC<ToolbarProps> = ({ onAddObject }) => {
         onChange={handleImageFileChange}
       />
 
-      {/* Select / Move Tool */}
-      <ToolButton
-        label="Select & Move"
-        shortcut="V"
-        isActive={activeTool === 'select'}
-        onClick={() => setActiveTool('select')}
-        icon={
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5" />
-          </svg>
-        }
-      />
+      {/* DESKTOP SIDEBAR TOOLBAR (Floating Vertical Bar) */}
+      <nav className="fixed left-4 top-1/2 -translate-y-1/2 hidden md:flex flex-col items-center gap-1.5 z-40 py-4 px-2 bg-white/90 dark:bg-inverse-surface/90 backdrop-blur-xl rounded-full border border-outline-variant/30 shadow-xl">
+        {/* Select Tool */}
+        <button
+          onClick={() => setActiveTool('select')}
+          className={`group relative flex items-center justify-center p-3 rounded-full active:scale-95 transition-all ${
+            activeTool === 'select'
+              ? 'bg-primary-container text-white shadow-md'
+              : 'text-on-surface-variant hover:bg-surface-container-high'
+          }`}
+          title="Select & Move (V)"
+        >
+          <NearMeIcon fontSize="small" />
+        </button>
 
-      {/* Pan Tool */}
-      <ToolButton
-        label="Pan Canvas"
-        shortcut="H / Space"
-        isActive={activeTool === 'pan'}
-        onClick={() => setActiveTool('pan')}
-        icon={
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11.5V14m0 0v2.5m0-2.5h10m0 0V11.5m0 2.5v2.5M11.5 7H14m-2.5 0H9m2.5 0v10" />
-          </svg>
-        }
-      />
+        {/* Pan Tool */}
+        <button
+          onClick={() => setActiveTool('pan')}
+          className={`group relative flex items-center justify-center p-3 rounded-full active:scale-95 transition-all ${
+            activeTool === 'pan'
+              ? 'bg-primary-container text-white shadow-md'
+              : 'text-on-surface-variant hover:bg-surface-container-high'
+          }`}
+          title="Pan Canvas (H)"
+        >
+          <PanToolIcon fontSize="small" />
+        </button>
 
-      <div className="w-full h-px bg-slate-800 my-0.5" />
-
-      {/* Text Tool */}
-      <ToolButton
-        label="Add Text (Click canvas to place)"
-        shortcut="T"
-        isActive={activeTool === 'text'}
-        onClick={() => {
-          if (activeTool === 'text') {
-            if (onAddObject) onAddObject('text');
-          } else {
-            setActiveTool('text');
-          }
-        }}
-        icon={
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M12 6v12M9 18h6" />
-          </svg>
-        }
-      />
-
-      {/* Shape Tool & Submenu */}
-      <div className="relative">
-        <ToolButton
-          label="Draw Shape (Click canvas to place)"
-          shortcut="S"
-          isActive={activeTool === 'shape'}
+        {/* Text Tool */}
+        <button
           onClick={() => {
-            if (activeTool === 'shape') {
-              if (onAddObject) onAddObject('shape', { shapeType });
+            if (activeTool === 'text') {
+              if (onAddObject) onAddObject('text');
             } else {
-              setActiveTool('shape');
-              setShowShapeMenu(!showShapeMenu);
+              setActiveTool('text');
             }
           }}
-          icon={
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5z" />
-            </svg>
-          }
-        />
+          className={`group relative flex items-center justify-center p-3 rounded-full active:scale-95 transition-all ${
+            activeTool === 'text'
+              ? 'bg-primary-container text-white shadow-md'
+              : 'text-on-surface-variant hover:bg-surface-container-high'
+          }`}
+          title="Add Text (T)"
+        >
+          <TitleIcon fontSize="small" />
+        </button>
 
-        {showShapeMenu && (
-          <div className="absolute left-14 top-0 z-50 glass-panel p-2 bg-slate-900/95 border border-slate-800 shadow-2xl rounded-xl grid grid-cols-3 gap-1.5 w-36 animate-in fade-in zoom-in-95 duration-150">
-            {shapes.map((s) => (
-              <button
-                key={s.type}
-                type="button"
-                className={`h-9 rounded-lg flex flex-col items-center justify-center text-sm font-medium transition-colors cursor-pointer ${
-                  shapeType === s.type
-                    ? 'bg-indigo-600 text-white'
-                    : 'hover:bg-slate-800 text-slate-300'
-                }`}
-                onClick={() => {
-                  setShapeType(s.type);
-                  setActiveTool('shape');
-                  setShowShapeMenu(false);
-                }}
-                title={s.label}
-              >
-                <span>{s.icon}</span>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+        {/* Shape Tool with Submenu */}
+        <div className="relative">
+          <button
+            onClick={() => {
+              if (activeTool === 'shape') {
+                if (onAddObject) onAddObject('shape', { shapeType });
+              } else {
+                setActiveTool('shape');
+                setShowShapeMenu(!showShapeMenu);
+              }
+            }}
+            className={`group relative flex items-center justify-center p-3 rounded-full active:scale-95 transition-all ${
+              activeTool === 'shape'
+                ? 'bg-primary-container text-white shadow-md'
+                : 'text-on-surface-variant hover:bg-surface-container-high'
+            }`}
+            title="Draw Shape (S)"
+          >
+            <CategoryIcon fontSize="small" />
+          </button>
 
-      {/* Sticky Note Tool */}
-      <ToolButton
-        label="Sticky Note (Click canvas to place)"
-        shortcut="N"
-        isActive={activeTool === 'sticky'}
-        onClick={() => {
-          if (activeTool === 'sticky') {
-            if (onAddObject) onAddObject('sticky');
-          } else {
-            setActiveTool('sticky');
-          }
-        }}
-        icon={
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-        }
-      />
+          {showShapeMenu && (
+            <div className="absolute left-16 top-0 z-50 glass-panel p-2 bg-white/95 dark:bg-inverse-surface/95 border border-outline-variant/30 shadow-2xl rounded-2xl grid grid-cols-3 gap-1.5 w-36 animate-in fade-in zoom-in-95 duration-150">
+              {shapes.map((s) => (
+                <button
+                  key={s.type}
+                  type="button"
+                  className={`h-9 rounded-xl flex items-center justify-center text-sm font-medium transition-colors cursor-pointer ${
+                    shapeType === s.type
+                      ? 'bg-primary text-white'
+                      : 'hover:bg-surface-container-high text-on-surface-variant'
+                  }`}
+                  onClick={() => {
+                    setShapeType(s.type);
+                    setActiveTool('shape');
+                    setShowShapeMenu(false);
+                  }}
+                  title={s.label}
+                >
+                  {s.icon}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
 
-      {/* Image Upload Tool */}
-      <ToolButton
-        label="Upload Image"
-        onClick={() => fileInputRef.current?.click()}
-        icon={
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-        }
-      />
+        {/* Sticky Note Tool */}
+        <button
+          onClick={() => {
+            if (activeTool === 'sticky') {
+              if (onAddObject) onAddObject('sticky');
+            } else {
+              setActiveTool('sticky');
+            }
+          }}
+          className={`group relative flex items-center justify-center p-3 rounded-full active:scale-95 transition-all ${
+            activeTool === 'sticky'
+              ? 'bg-primary-container text-white shadow-md'
+              : 'text-on-surface-variant hover:bg-surface-container-high'
+          }`}
+          title="Sticky Note (N)"
+        >
+          <StickyNote2Icon fontSize="small" />
+        </button>
 
-      {/* Audio Recorder Tool */}
-      <ToolButton
-        label={isRecording ? 'Stop Recording' : 'Record Voice Note'}
-        isActive={isRecording}
-        onClick={handleAudioRecordClick}
-        badge={
-          isRecording ? (
-            <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-rose-500 animate-ping" />
-          ) : undefined
-        }
-        icon={
-          <svg className={`w-5 h-5 ${isRecording ? 'text-rose-400 animate-pulse' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-          </svg>
-        }
-      />
+        {/* Image Tool */}
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          className="group relative flex items-center justify-center p-3 rounded-full text-on-surface-variant hover:bg-surface-container-high active:scale-95 transition-all"
+          title="Upload Image"
+        >
+          <ImageIcon fontSize="small" />
+        </button>
 
-      <div className="w-full h-px bg-slate-800 my-0.5" />
+        {/* Audio Recording Tool */}
+        <button
+          onClick={handleAudioRecordClick}
+          className={`group relative flex items-center justify-center p-3 rounded-full active:scale-95 transition-all ${
+            isRecording
+              ? 'bg-error text-white animate-pulse'
+              : 'text-on-surface-variant hover:bg-surface-container-high'
+          }`}
+          title={isRecording ? 'Stop Recording' : 'Voice Note'}
+        >
+          <MicIcon fontSize="small" />
+        </button>
 
-      {/* Color Picker */}
-      <ColorPicker currentColor={currentColor} onChange={setCurrentColor} />
+        <div className="w-8 h-px bg-outline-variant/30 my-1" />
 
-      {/* Physics Toggle Button */}
-      <ToolButton
-        label={physicsEnabled ? 'Disable Global Physics' : 'Enable Global Physics'}
-        isActive={physicsEnabled}
-        onClick={togglePhysics}
-        icon={
-          <svg className={`w-5 h-5 ${physicsEnabled ? 'text-amber-400' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
-        }
-      />
+        {/* Color Palette Selector */}
+        <div className="relative">
+          <button
+            onClick={() => setShowColorPicker(!showColorPicker)}
+            className="group relative flex items-center justify-center p-2 rounded-full hover:bg-surface-container-high active:scale-95 transition-all"
+            title="Color Palette"
+          >
+            <CircleIcon style={{ color: currentColor }} fontSize="small" />
+          </button>
+          {showColorPicker && (
+            <div className="absolute left-16 top-0 z-50 glass-panel p-2 bg-white/95 dark:bg-inverse-surface/95 border border-outline-variant/30 shadow-2xl rounded-2xl flex flex-col gap-1.5 w-10 animate-in fade-in zoom-in-95">
+              {paletteColors.map((c) => (
+                <button
+                  key={c}
+                  className="w-6 h-6 rounded-full border border-outline-variant shadow-sm transition-transform hover:scale-110"
+                  style={{ backgroundColor: c }}
+                  onClick={() => {
+                    setCurrentColor(c);
+                    setShowColorPicker(false);
+                  }}
+                />
+              ))}
+            </div>
+          )}
+        </div>
 
-      <div className="w-full h-px bg-slate-800 my-0.5" />
+        {/* Eraser Tool */}
+        <button
+          onClick={() => setActiveTool('eraser')}
+          className={`group relative flex items-center justify-center p-3 rounded-full active:scale-95 transition-all ${
+            activeTool === 'eraser'
+              ? 'bg-primary-container text-white shadow-md'
+              : 'text-on-surface-variant hover:bg-surface-container-high'
+          }`}
+          title="Eraser"
+        >
+          <CleaningServicesIcon fontSize="small" />
+        </button>
 
-      {/* Time Travel Replay Toggle */}
-      <ToolButton
-        label="Time Travel Replay"
-        isActive={showTimeTravelPanel}
-        onClick={toggleTimeTravelPanel}
-        icon={
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        }
-      />
+        {/* Physics Toggle */}
+        <button
+          onClick={togglePhysics}
+          className={`group relative flex items-center justify-center p-3 rounded-full active:scale-95 transition-all ${
+            physicsEnabled
+              ? 'bg-tertiary text-white shadow-md animate-bounce'
+              : 'text-tertiary hover:bg-tertiary-container/30'
+          }`}
+          title={physicsEnabled ? 'Physics Enabled' : 'Enable Physics'}
+        >
+          <RocketLaunchIcon fontSize="small" />
+        </button>
+      </nav>
 
-      {/* Export Panel Toggle */}
-      <ToolButton
-        label="Export Canvas"
-        onClick={toggleExportPanel}
-        icon={
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-          </svg>
-        }
-      />
-
-      {/* MiniMap Toggle */}
-      <ToolButton
-        label={showMiniMap ? 'Hide MiniMap' : 'Show MiniMap'}
-        isActive={showMiniMap}
-        onClick={toggleMiniMap}
-        icon={
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l5.447 2.724A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-          </svg>
-        }
-      />
-    </div>
+      {/* MOBILE ADAPTIVE TOOLBAR (Bottom Horizontal Bar) */}
+      <nav className="fixed bottom-0 left-0 right-0 z-50 pb-4 px-4 flex justify-center pointer-events-none md:hidden">
+        <div className="glass-panel rounded-full h-16 w-full max-w-md flex items-center justify-between px-3 gap-1 pointer-events-auto bg-white/90 dark:bg-inverse-surface/90 border border-outline-variant/30 shadow-2xl overflow-x-auto no-scrollbar">
+          <button
+            onClick={() => setActiveTool('select')}
+            className={`min-w-[44px] h-11 rounded-full flex items-center justify-center transition-all ${
+              activeTool === 'select' ? 'bg-primary-container text-white' : 'text-on-surface-variant'
+            }`}
+          >
+            <NearMeIcon fontSize="small" />
+          </button>
+          <button
+            onClick={() => setActiveTool('pan')}
+            className={`min-w-[44px] h-11 rounded-full flex items-center justify-center transition-all ${
+              activeTool === 'pan' ? 'bg-primary-container text-white' : 'text-on-surface-variant'
+            }`}
+          >
+            <PanToolIcon fontSize="small" />
+          </button>
+          <button
+            onClick={() => setActiveTool('text')}
+            className={`min-w-[44px] h-11 rounded-full flex items-center justify-center transition-all ${
+              activeTool === 'text' ? 'bg-primary-container text-white' : 'text-on-surface-variant'
+            }`}
+          >
+            <TitleIcon fontSize="small" />
+          </button>
+          <button
+            onClick={() => setActiveTool('shape')}
+            className={`min-w-[44px] h-11 rounded-full flex items-center justify-center transition-all ${
+              activeTool === 'shape' ? 'bg-primary-container text-white' : 'text-on-surface-variant'
+            }`}
+          >
+            <CategoryIcon fontSize="small" />
+          </button>
+          <button
+            onClick={() => setActiveTool('sticky')}
+            className={`min-w-[44px] h-11 rounded-full flex items-center justify-center transition-all ${
+              activeTool === 'sticky' ? 'bg-primary-container text-white' : 'text-on-surface-variant'
+            }`}
+          >
+            <StickyNote2Icon fontSize="small" />
+          </button>
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="min-w-[44px] h-11 rounded-full flex items-center justify-center text-on-surface-variant"
+          >
+            <ImageIcon fontSize="small" />
+          </button>
+          <div className="w-px h-6 bg-outline-variant/30 shrink-0" />
+          <button
+            onClick={toggleMiniMap}
+            className={`min-w-[44px] h-11 rounded-full flex items-center justify-center transition-all ${
+              showMiniMap ? 'bg-primary text-white' : 'text-on-surface-variant'
+            }`}
+          >
+            <MapIcon fontSize="small" />
+          </button>
+          <button
+            onClick={togglePhysics}
+            className={`min-w-[44px] h-11 rounded-full flex items-center justify-center transition-all ${
+              physicsEnabled ? 'bg-tertiary text-white' : 'text-tertiary'
+            }`}
+          >
+            <RocketLaunchIcon fontSize="small" />
+          </button>
+        </div>
+      </nav>
+    </>
   );
 };

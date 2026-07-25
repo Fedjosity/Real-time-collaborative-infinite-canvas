@@ -13,7 +13,6 @@ import { KeyboardShortcutsModal } from '@/components/ui/KeyboardShortcutsModal';
 import { TimeTravelBar } from '@/components/timetravel/TimeTravelBar';
 import { ExportMenu } from '@/components/export/ExportMenu';
 import { JoinModal } from '@/components/auth/JoinModal';
-import { Button } from '@/components/ui/Button';
 import { useYjs } from '@/hooks/useYjs';
 import { useAwareness } from '@/hooks/useAwareness';
 import { usePhysics } from '@/hooks/usePhysics';
@@ -23,6 +22,16 @@ import { useUIStore } from '@/store/uiStore';
 import { STORAGE_KEYS, type LocalUser } from '@/types/room';
 import { screenToWorld } from '@/lib/canvas/viewport';
 import { createSnapshot, type CanvasSnapshot } from '@/lib/timetravel/snapshots';
+
+// MUI Icons
+import HistoryIcon from '@mui/icons-material/History';
+import HelpIcon from '@mui/icons-material/Help';
+import ShareIcon from '@mui/icons-material/Share';
+import CloudOffIcon from '@mui/icons-material/CloudOff';
+import CloudDoneIcon from '@mui/icons-material/CloudDone';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 export interface RoomPageProps {
   params: Promise<{ roomId: string }>;
@@ -46,10 +55,14 @@ export default function RoomPage({ params }: RoomPageProps) {
   const setCamera = useCanvasStore((state) => state.setCamera);
   const selectedObjectIds = useCanvasStore((state) => state.selectedObjectIds);
   const selectObject = useCanvasStore((state) => state.selectObject);
+  const activeTool = useCanvasStore((state) => state.activeTool);
+  const setActiveTool = useCanvasStore((state) => state.setActiveTool);
+  const shapeType = useCanvasStore((state) => state.shapeType);
 
   const connectionStatus = useRoomStore((state) => state.connectionStatus);
   const connectedUsers = useRoomStore((state) => state.connectedUsers);
   const addToast = useUIStore((state) => state.addToast);
+  const showMiniMap = useUIStore((state) => state.showMiniMap);
 
   // Center camera view on origin (0,0) on room load
   useEffect(() => {
@@ -117,16 +130,11 @@ export default function RoomPage({ params }: RoomPageProps) {
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
-  const setActiveTool = useCanvasStore((state) => state.setActiveTool);
-  const activeTool = useCanvasStore((state) => state.activeTool);
-  const shapeType = useCanvasStore((state) => state.shapeType);
-
   // Handle adding objects from Toolbar with Smart Staggered Position
   const handleAddObjectFromToolbar = (type: string, extraData?: Record<string, unknown>) => {
     const centerScreen = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
     const worldCenter = screenToWorld(centerScreen, camera);
 
-    // Stagger offset (30px) so consecutive objects never stack directly on top of each other
     const staggerOffset = (objects.length * 30) % 240;
     const spawnPos = {
       x: worldCenter.x + staggerOffset,
@@ -137,7 +145,7 @@ export default function RoomPage({ params }: RoomPageProps) {
     if (newObj?.id) selectObject(newObj.id);
   };
 
-  // Handle clicking empty canvas space to place active creation tool at exact cursor position
+  // Handle clicking empty canvas space to place active creation tool
   const handleStageClick = (e: any) => {
     const stage = e.target?.getStage();
     if (!stage) return;
@@ -152,89 +160,99 @@ export default function RoomPage({ params }: RoomPageProps) {
     }
   };
 
+  // Zoom handlers
+  const handleZoom = (factor: number) => {
+    const newScale = Math.min(Math.max(camera.scale * factor, 0.1), 5.0);
+    setCamera({ ...camera, scale: newScale });
+  };
+
   return (
     <div
-      className="relative w-screen h-screen overflow-hidden bg-[#070709] text-slate-100 flex flex-col select-none"
+      className="relative w-screen h-screen overflow-hidden bg-background text-on-surface flex flex-col select-none"
       onMouseMove={handleMouseMove}
     >
-      {/* Top Header Navigation Bar */}
-      <header className="absolute top-4 left-20 right-4 z-40 flex items-center justify-between glass-panel p-3 px-5 border border-amber-500/20 bg-[#0e0e12]/90 shadow-2xl rounded-2xl pointer-events-auto">
-        <div className="flex items-center gap-4">
+      {/* STITCH RESPONSIVE TOP HEADER */}
+      <header className="bg-white/80 dark:bg-inverse-surface/80 backdrop-blur-xl border-b border-outline-variant/30 shadow-sm flex justify-between items-center h-16 px-4 md:px-6 w-full fixed top-0 z-50">
+        <div className="flex items-center gap-3 md:gap-6">
           <button
             onClick={() => router.push('/')}
-            className="flex items-center gap-2 text-slate-300 hover:text-amber-300 transition-colors font-display font-bold text-lg cursor-pointer"
+            className="flex items-center gap-2 text-primary font-bold text-lg cursor-pointer"
           >
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-amber-400 to-yellow-600 flex items-center justify-center text-slate-950 font-extrabold text-sm shadow-md">
+            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white font-extrabold text-sm shadow-md">
               C
             </div>
-            <span>Collab<span className="gradient-text">Canvas</span></span>
+            <span className="hidden sm:inline font-bold">CanvasFlow</span>
           </button>
 
-          <span className="text-slate-700">|</span>
+          <div className="h-6 w-px bg-outline-variant/50 hidden sm:block" />
 
-          {/* Room Title & ID Badge */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-mono text-amber-300/80 bg-amber-950/40 px-2.5 py-1 rounded-lg border border-amber-500/20">
-              Room: {roomId}
-            </span>
+          {/* Room ID Badge */}
+          <div className="bg-surface-container px-3 py-1 rounded-full text-primary font-bold text-xs md:text-sm">
+            Room: #{roomId}
+          </div>
+
+          {/* Connection Status Indicator */}
+          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-surface-container rounded-full border border-outline-variant/30 text-xs">
+            {connectionStatus === 'connected' ? (
+              <>
+                <CloudDoneIcon className="text-emerald-500" fontSize="inherit" />
+                <span className="hidden md:inline font-medium text-emerald-600">Connected</span>
+              </>
+            ) : (
+              <>
+                <CloudOffIcon className="text-amber-500" fontSize="inherit" />
+                <span className="hidden md:inline font-medium text-amber-600">{connectionStatus}</span>
+              </>
+            )}
           </div>
         </div>
 
-        {/* Status Indicators & Share Actions */}
-        <div className="flex items-center gap-3">
-          {/* Connection Status Pill */}
-          <div className="flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800">
-            <span
-              className={`w-2.5 h-2.5 rounded-full ${
-                connectionStatus === 'connected'
-                  ? 'bg-emerald-400 animate-pulse'
-                  : connectionStatus === 'syncing'
-                  ? 'bg-amber-400 animate-ping'
-                  : 'bg-rose-500'
-              }`}
-            />
-            <span className="capitalize text-slate-300">
-              {connectionStatus === 'connected' ? 'Connected' : connectionStatus}
-            </span>
+        {/* Right Nav Actions */}
+        <div className="flex items-center gap-2 md:gap-3">
+          {/* User Avatars Stack */}
+          <div className="flex items-center -space-x-2 mr-1">
+            <div className="w-8 h-8 rounded-full border-2 border-white bg-primary flex items-center justify-center text-white text-xs font-bold shadow-sm">
+              {localUser?.username?.[0]?.toUpperCase() || 'G'}
+            </div>
+            {connectedUsers.slice(0, 2).map((u, i) => (
+              <div
+                key={u.id || i}
+                className="w-8 h-8 rounded-full border-2 border-white bg-tertiary flex items-center justify-center text-white text-xs font-bold shadow-sm"
+              >
+                {u.username?.[0]?.toUpperCase() || 'U'}
+              </div>
+            ))}
+            {connectedUsers.length > 2 && (
+              <div className="w-8 h-8 rounded-full border-2 border-white bg-surface-container-high flex items-center justify-center text-on-surface-variant text-xs font-bold shadow-sm">
+                +{connectedUsers.length - 2}
+              </div>
+            )}
           </div>
 
-          {/* User Count Badge */}
-          <div className="flex items-center gap-1.5 text-xs text-amber-200 bg-amber-500/10 px-3 py-1.5 rounded-full border border-amber-500/20 font-medium">
-            <svg className="w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
-            <span>{connectedUsers.length || 1} / 20</span>
-          </div>
-
-          {/* Time-Travel Replay Toggle Button */}
-          <Button
-            variant="outline"
-            size="sm"
+          {/* Time-Travel Button */}
+          <button
             onClick={() => {
               setIsReplaying(!isReplaying);
               setSnapshotIndex(Math.max(0, snapshots.length - 1));
             }}
-            icon={
-              <svg className="w-4 h-4 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            }
+            className={`p-2 rounded-full transition-all active:scale-95 ${
+              isReplaying ? 'bg-amber-100 text-amber-700' : 'text-on-surface-variant hover:bg-surface-container-high'
+            }`}
+            title="Time Travel Replay"
           >
-            {isReplaying ? 'Exit Replay' : 'Time Travel'}
-          </Button>
+            <HistoryIcon />
+          </button>
 
-          {/* Keyboard Shortcuts Guide Button */}
-          <Button
-            variant="ghost"
-            size="sm"
+          {/* Shortcuts Guide Button */}
+          <button
             onClick={() => setShowShortcutsModal(true)}
-            className="w-9 h-9 p-0 rounded-xl border border-amber-500/20 text-amber-300 font-mono font-bold"
-            title="Keyboard Shortcuts (?)"
+            className="p-2 text-on-surface-variant hover:bg-surface-container-high transition-all rounded-full active:scale-95 hidden sm:block"
+            title="Shortcuts Guide"
           >
-            ?
-          </Button>
+            <HelpIcon />
+          </button>
 
-          {/* Export & Import Menu Dropdown */}
+          {/* Export Menu Dropdown */}
           <ExportMenu
             objects={objects}
             roomId={roomId}
@@ -246,24 +264,19 @@ export default function RoomPage({ params }: RoomPageProps) {
             }}
           />
 
-          {/* Share Room Button */}
-          <Button
-            variant="primary"
-            size="sm"
+          {/* Share Button */}
+          <button
             onClick={copyInviteLink}
-            icon={
-              <svg className="w-4 h-4 text-slate-950" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-              </svg>
-            }
+            className="flex items-center gap-1.5 px-4 py-2 bg-primary hover:bg-on-primary-fixed-variant text-white font-medium text-xs md:text-sm rounded-lg transition-all shadow-md active:scale-95"
           >
-            {copiedLink ? 'Copied!' : 'Share Room'}
-          </Button>
+            <ShareIcon fontSize="small" />
+            <span className="hidden sm:inline">{copiedLink ? 'Copied!' : 'Share'}</span>
+          </button>
         </div>
       </header>
 
-      {/* Main Canvas Component */}
-      <div className="flex-1 w-full h-full relative">
+      {/* Main Canvas Component Surface */}
+      <div className="flex-1 w-full h-full relative pt-16">
         <CanvasStage
           objects={isReplaying && snapshots[snapshotIndex] ? snapshots[snapshotIndex].objects : objects}
           selectedObjectIds={selectedObjectIds}
@@ -300,13 +313,38 @@ export default function RoomPage({ params }: RoomPageProps) {
           />
         )}
 
-        {/* Floating Creative Toolbar */}
+        {/* Responsive Creative Toolbar (Desktop left bar + Mobile bottom bar) */}
         <Toolbar onAddObject={handleAddObjectFromToolbar} />
 
-        {/* Bottom-Right Mini-Map Widget */}
-        <div className="absolute bottom-6 right-6 z-40">
-          <MiniMap objects={objects} users={remoteUsers} />
+        {/* Zoom Controls (Bottom Left) */}
+        <div className="fixed bottom-24 md:bottom-6 left-4 z-40 flex flex-col gap-1">
+          <div className="glass-panel flex flex-col rounded-full p-1 border border-outline-variant/20 shadow-md bg-white/90 dark:bg-inverse-surface/90">
+            <button
+              onClick={() => handleZoom(1.2)}
+              className="w-9 h-9 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high rounded-full active:scale-95 transition-all"
+              title="Zoom In"
+            >
+              <AddIcon fontSize="small" />
+            </button>
+            <div className="text-center font-bold text-[11px] py-1 text-on-surface-variant">
+              {Math.round(camera.scale * 100)}%
+            </div>
+            <button
+              onClick={() => handleZoom(0.8)}
+              className="w-9 h-9 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high rounded-full active:scale-95 transition-all"
+              title="Zoom Out"
+            >
+              <RemoveIcon fontSize="small" />
+            </button>
+          </div>
         </div>
+
+        {/* Bottom-Right Mini-Map Widget (Visible if toggled or on desktop) */}
+        {showMiniMap && (
+          <div className="fixed bottom-24 md:bottom-6 right-4 z-40">
+            <MiniMap objects={objects} users={remoteUsers} />
+          </div>
+        )}
       </div>
 
       {/* Guest Authentication Join Modal */}

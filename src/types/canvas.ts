@@ -256,7 +256,8 @@ export type CanvasTool =
   | 'shape'    // Click+drag to draw a shape
   | 'sticky'   // Click to place a sticky note
   | 'image'    // Click to upload/paste an image
-  | 'audio';   // Click to start recording
+  | 'audio'    // Click to start recording
+  | 'eraser';  // Click or drag to erase objects
 
 /** Active tool state with configuration */
 export interface ToolState {
