@@ -1,25 +1,25 @@
-# Syntax for Dockerfile
 FROM node:22-alpine AS base
 
-# Install pnpm globally
+# Install pnpm
 RUN npm install -g pnpm@9.15.4
 
 WORKDIR /app
 
-# Copy package manifests and prisma schema
+# Copy dependency manifests
 COPY package.json pnpm-lock.yaml .npmrc ./
 COPY prisma ./prisma/
 
-# Install all dependencies
-RUN pnpm install --frozen-lockfile
+# Install dependencies
+RUN pnpm install
 
-# Copy application source code
+# Copy source code
 COPY . .
 
-# Generate Prisma client & build Next.js application
-RUN pnpm build
+# Generate Prisma Client and build Next.js application
+RUN pnpm prisma generate
+RUN pnpm next build
 
-# Production image
+# Production runner stage
 FROM node:22-alpine AS runner
 
 RUN npm install -g pnpm@9.15.4
@@ -30,10 +30,9 @@ ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# Copy built app and dependencies from builder stage
+# Copy built application and dependencies
 COPY --from=base /app /app
 
 EXPOSE 3000
 
-# Start custom Node.js server (serves Next.js + Yjs WebSockets)
 CMD ["node", "server.js"]
