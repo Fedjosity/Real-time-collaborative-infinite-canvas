@@ -8,6 +8,8 @@ import { MiniMap } from '@/components/minimap/MiniMap';
 import { PeerRadar } from '@/components/minimap/PeerRadar';
 import { Toolbar } from '@/components/toolbar/Toolbar';
 import { OfflineBanner } from '@/components/ui/OfflineBanner';
+import { ToastContainer } from '@/components/ui/ToastContainer';
+import { KeyboardShortcutsModal } from '@/components/ui/KeyboardShortcutsModal';
 import { TimeTravelBar } from '@/components/timetravel/TimeTravelBar';
 import { ExportMenu } from '@/components/export/ExportMenu';
 import { JoinModal } from '@/components/auth/JoinModal';
@@ -32,6 +34,7 @@ export default function RoomPage({ params }: RoomPageProps) {
 
   const [localUser, setLocalUser] = useState<LocalUser | null>(null);
   const [showJoinModal, setShowJoinModal] = useState(false);
+  const [showShortcutsModal, setShowShortcutsModal] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
 
   // Time-Travel Replay State
@@ -180,6 +183,17 @@ export default function RoomPage({ params }: RoomPageProps) {
             {isReplaying ? 'Exit Replay' : 'Time Travel'}
           </Button>
 
+          {/* Keyboard Shortcuts Guide Button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowShortcutsModal(true)}
+            className="w-9 h-9 p-0 rounded-xl border border-amber-500/20 text-amber-300 font-mono font-bold"
+            title="Keyboard Shortcuts (?)"
+          >
+            ?
+          </Button>
+
           {/* Export & Import Menu Dropdown */}
           <ExportMenu
             objects={objects}
@@ -225,6 +239,15 @@ export default function RoomPage({ params }: RoomPageProps) {
 
         {/* Offline Notification Banner */}
         <OfflineBanner />
+
+        {/* Real-Time Floating Toast Notifications */}
+        <ToastContainer />
+
+        {/* Keyboard Shortcuts Guide Modal */}
+        <KeyboardShortcutsModal
+          isOpen={showShortcutsModal}
+          onClose={() => setShowShortcutsModal(false)}
+        />
 
         {/* Time-Travel Session Replay Timeline Scrubber Bar */}
         {isReplaying && (
