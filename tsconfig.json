@@ -1,0 +1,54 @@
+{
+  "compilerOptions": {
+    /* === Language & Environment === */
+    "target": "ES2022",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "jsx": "preserve",
+
+    /* === Module Resolution === */
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+
+    /* === Strictness === */
+    "strict": true,
+    "noEmit": true,
+    "noUncheckedIndexedAccess": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* === Interop === */
+    "allowJs": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+
+    /* === Path Aliases === */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@/components/*": ["./src/components/*"],
+      "@/lib/*": ["./src/lib/*"],
+      "@/hooks/*": ["./src/hooks/*"],
+      "@/store/*": ["./src/store/*"],
+      "@/types/*": ["./src/types/*"]
+    },
+
+    /* === Next.js Plugin === */
+    "plugins": [
+      { "name": "next" }
+    ],
+
+    /* === Incremental Compilation === */
+    "incremental": true
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "server.js"
+  ]
+}

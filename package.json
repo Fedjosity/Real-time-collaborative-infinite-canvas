@@ -1,0 +1,53 @@
+{
+  "name": "collabcanvas",
+  "version": "1.0.0",
+  "description": "Real-time collaborative infinite canvas with physics, time-travel, and creative tools",
+  "private": true,
+  "packageManager": "pnpm@9.15.4",
+  "scripts": {
+    "dev": "node server.js",
+    "build": "npx prisma generate && next build",
+    "start": "NODE_ENV=production node server.js",
+    "postinstall": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.9.0",
+    "ioredis": "^5.6.0",
+    "konva": "^9.3.0",
+    "matter-js": "^0.20.0",
+    "nanoid": "^5.1.0",
+    "next": "^15.3.0",
+    "rbush": "^4.0.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-konva": "^19.0.0",
+    "ws": "^8.18.0",
+    "y-indexeddb": "^9.0.12",
+    "y-websocket": "^2.1.0",
+    "yjs": "^13.6.0",
+    "zustand": "^5.0.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "@testing-library/jest-dom": "^6.6.0",
+    "@testing-library/react": "^16.3.0",
+    "@types/matter-js": "^0.19.7",
+    "@types/node": "^22.15.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@types/ws": "^8.18.0",
+    "jsdom": "^26.1.0",
+    "prisma": "^6.9.0",
+    "typescript": "^5.8.0",
+    "vitest": "^3.2.0"
+  }
+}

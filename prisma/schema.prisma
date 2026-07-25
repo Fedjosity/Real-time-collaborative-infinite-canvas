@@ -1,0 +1,97 @@
+// =============================================================================
+// CollabCanvas — Prisma Schema
+// =============================================================================
+//
+// Database models for persistent data. The canvas state itself is managed by
+// Yjs CRDTs (stored in IndexedDB client-side and y-websocket server-side).
+// PostgreSQL handles metadata that needs ACID guarantees:
+//   - Room lifecycle and configuration
+//   - User sessions (for analytics and presence history)
+//   - Audio file metadata (actual files live on the filesystem)
+//
+// Why not store canvas objects here?
+// → Canvas objects change at 60fps during drag operations. CRDTs handle this
+//   efficiently with binary diffs. A traditional DB would be a bottleneck.
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// A collaborative canvas room that users can join via shareable link.
+model Room {
+  id          String    @id @default(cuid())
+  /// Optional human-readable name for the room
+  name        String?
+  /// Maximum concurrent users (enforced server-side)
+  maxUsers    Int       @default(20)
+  /// Whether the room is currently accepting connections
+  isActive    Boolean   @default(true)
+  /// Soft-delete: when a room is archived, it's no longer listed but data persists
+  archivedAt  DateTime?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  sessions    Session[]
+  audioFiles  AudioFile[]
+
+  @@index([isActive, createdAt(sort: Desc)])
+}
+
+/// A user's session within a room. One user can have multiple sessions
+/// (e.g., reconnecting after network loss creates a new session).
+model Session {
+  id          String    @id @default(cuid())
+  /// The room this session belongs to
+  roomId      String
+  room        Room      @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  /// Display name chosen by the user (guest auth)
+  username    String
+  /// Hex color assigned to the user for cursor/avatar display
+  userColor   String
+  /// When the user joined
+  joinedAt    DateTime  @default(now())
+  /// When the user left (null if still connected)
+  leftAt      DateTime?
+  /// Whether this session is currently active
+  isActive    Boolean   @default(true)
+
+  @@index([roomId, isActive])
+  @@index([username])
+}
+
+/// Metadata for audio recordings stored on the server filesystem.
+/// Actual audio data lives at `filePath` — not in the database — to avoid
+/// bloating the DB with binary data.
+model AudioFile {
+  id          String    @id @default(cuid())
+  /// Room where this audio was recorded
+  roomId      String
+  room        Room      @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  /// The canvas object ID that this audio belongs to
+  objectId    String    @unique
+  /// Original filename (for download)
+  filename    String
+  /// MIME type (typically audio/webm or audio/mp4)
+  mimeType    String    @default("audio/webm")
+  /// File size in bytes
+  sizeBytes   Int
+  /// Server filesystem path to the audio file
+  filePath    String
+  /// Duration in seconds
+  duration    Float     @default(0)
+  /// Username of the person who recorded it
+  createdBy   String
+
+  createdAt   DateTime  @default(now())
+
+  @@index([roomId])
+  @@index([objectId])
+}
