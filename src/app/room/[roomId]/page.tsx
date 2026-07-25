@@ -43,12 +43,24 @@ export default function RoomPage({ params }: RoomPageProps) {
   const [snapshotIndex, setSnapshotIndex] = useState(0);
 
   const camera = useCanvasStore((state) => state.camera);
+  const setCamera = useCanvasStore((state) => state.setCamera);
   const selectedObjectIds = useCanvasStore((state) => state.selectedObjectIds);
   const selectObject = useCanvasStore((state) => state.selectObject);
 
   const connectionStatus = useRoomStore((state) => state.connectionStatus);
   const connectedUsers = useRoomStore((state) => state.connectedUsers);
   const addToast = useUIStore((state) => state.addToast);
+
+  // Center camera view on origin (0,0) on room load
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setCamera({
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 2,
+        scale: 1.0,
+      });
+    }
+  }, [setCamera]);
 
   // Load identity from localStorage on mount
   useEffect(() => {

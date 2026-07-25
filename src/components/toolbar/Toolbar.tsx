@@ -127,12 +127,15 @@ export const Toolbar: React.FC<ToolbarProps> = ({ onAddObject }) => {
 
       {/* Text Tool */}
       <ToolButton
-        label="Add Text"
+        label="Add Text (Click canvas to place)"
         shortcut="T"
         isActive={activeTool === 'text'}
         onClick={() => {
-          setActiveTool('text');
-          if (onAddObject) onAddObject('text');
+          if (activeTool === 'text') {
+            if (onAddObject) onAddObject('text');
+          } else {
+            setActiveTool('text');
+          }
         }}
         icon={
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -144,12 +147,16 @@ export const Toolbar: React.FC<ToolbarProps> = ({ onAddObject }) => {
       {/* Shape Tool & Submenu */}
       <div className="relative">
         <ToolButton
-          label="Draw Shape"
+          label="Draw Shape (Click canvas to place)"
           shortcut="S"
           isActive={activeTool === 'shape'}
           onClick={() => {
-            setActiveTool('shape');
-            setShowShapeMenu(!showShapeMenu);
+            if (activeTool === 'shape') {
+              if (onAddObject) onAddObject('shape', { shapeType });
+            } else {
+              setActiveTool('shape');
+              setShowShapeMenu(!showShapeMenu);
+            }
           }}
           icon={
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -171,8 +178,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({ onAddObject }) => {
                 }`}
                 onClick={() => {
                   setShapeType(s.type);
+                  setActiveTool('shape');
                   setShowShapeMenu(false);
-                  if (onAddObject) onAddObject('shape', { shapeType: s.type });
                 }}
                 title={s.label}
               >
@@ -185,12 +192,15 @@ export const Toolbar: React.FC<ToolbarProps> = ({ onAddObject }) => {
 
       {/* Sticky Note Tool */}
       <ToolButton
-        label="Sticky Note"
+        label="Sticky Note (Click canvas to place)"
         shortcut="N"
         isActive={activeTool === 'sticky'}
         onClick={() => {
-          setActiveTool('sticky');
-          if (onAddObject) onAddObject('sticky');
+          if (activeTool === 'sticky') {
+            if (onAddObject) onAddObject('sticky');
+          } else {
+            setActiveTool('sticky');
+          }
         }}
         icon={
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
