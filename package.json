@@ -32,6 +32,7 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-konva": "^19.0.0",
+    "react-konva-utils": "^2.0.0",
     "ws": "^8.18.0",
     "y-indexeddb": "^9.0.12",
     "y-websocket": "^2.1.0",

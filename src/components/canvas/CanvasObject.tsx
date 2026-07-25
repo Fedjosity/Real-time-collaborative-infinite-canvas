@@ -13,6 +13,7 @@ import { AudioObject } from './objects/AudioObject';
 export interface CanvasObjectProps {
   object: CanvasObject;
   isSelected: boolean;
+  isDraggable?: boolean;
   onSelect: (id: string, multiSelect: boolean) => void;
   onChange: (id: string, newAttrs: Partial<CanvasObject>) => void;
   onContextMenu?: (e: Konva.KonvaEventObject<PointerEvent>, id: string) => void;
@@ -21,6 +22,7 @@ export interface CanvasObjectProps {
 export const CanvasObjectItem: React.FC<CanvasObjectProps> = ({
   object,
   isSelected,
+  isDraggable = true,
   onSelect,
   onChange,
   onContextMenu,
@@ -37,8 +39,11 @@ export const CanvasObjectItem: React.FC<CanvasObjectProps> = ({
   }, [isSelected]);
 
   const handleSelect = (e: Konva.KonvaEventObject<MouseEvent>) => {
-    e.cancelBubble = true;
     onSelect(object.id, e.evt.shiftKey || e.evt.ctrlKey || e.evt.metaKey);
+  };
+
+  const handleDragMove = (e: Konva.KonvaEventObject<DragEvent>) => {
+    // Optional: Throttle real-time sync if needed, but for MVP local move is smooth natively.
   };
 
   const handleDragEnd = (e: Konva.KonvaEventObject<DragEvent>) => {
@@ -119,7 +124,8 @@ export const CanvasObjectItem: React.FC<CanvasObjectProps> = ({
         width={object.width}
         height={object.height}
         rotation={object.rotation}
-        draggable={!object.locked}
+        draggable={isDraggable && !object.locked}
+        onDragMove={handleDragMove}
         onDragEnd={handleDragEnd}
         onTransformEnd={handleTransformEnd}
         onContextMenu={(e) => onContextMenu && onContextMenu(e, object.id)}

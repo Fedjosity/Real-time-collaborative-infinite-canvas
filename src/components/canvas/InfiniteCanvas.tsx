@@ -135,6 +135,7 @@ export const InfiniteCanvas: React.FC<InfiniteCanvasProps> = ({
               key={obj.id}
               object={obj}
               isSelected={selectedObjectIds.includes(obj.id)}
+              isDraggable={activeTool === 'select'}
               onSelect={(id, multi) => onSelectObject && onSelectObject(id, multi)}
               onChange={(id, attrs) => onUpdateObject && onUpdateObject(id, attrs)}
             />
