@@ -18,7 +18,7 @@ export const USER_COLORS: readonly string[] = [
   '#D4AF37', // Metallic Gold
   '#F59E0B', // Amber Gold
   '#EAB308', // Yellow Gold
-  '#F59E0B', // Warm Amber
+  '#B48E26', // Rich Deep Gold
   '#EC4899', // Rose Pink
   '#10B981', // Emerald
   '#38BDF8', // Sky Blue

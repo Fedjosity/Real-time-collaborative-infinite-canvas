@@ -100,9 +100,9 @@ export const JoinModal: React.FC<JoinModalProps> = ({
             Your Cursor & Presence Color
           </label>
           <div className="grid grid-cols-10 gap-2 p-2.5 bg-slate-950/60 rounded-xl border border-slate-800">
-            {USER_COLORS.map((color) => (
+            {USER_COLORS.map((color, idx) => (
               <button
-                key={color}
+                key={`${color}-${idx}`}
                 type="button"
                 className={`w-6 h-6 rounded-full transition-all duration-150 cursor-pointer ${
                   selectedColor === color

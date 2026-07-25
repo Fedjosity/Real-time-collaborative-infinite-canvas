@@ -31,6 +31,8 @@ export type ConnectionStatus =
 export interface User {
   /** Yjs client ID (unique per browser tab) */
   clientId: number;
+  /** Unique user device or session ID string */
+  id?: string;
   /** Display name chosen during join */
   username: string;
   /** Assigned hex color for cursor and avatar */
@@ -43,6 +45,10 @@ export interface User {
   isActive: boolean;
   /** Last activity timestamp (for idle detection) */
   lastActive: number;
+  /** Whether this presence represents the local user */
+  isLocal?: boolean;
+  /** Network connection status */
+  isOnline?: boolean;
 }
 
 /**

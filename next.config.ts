@@ -5,41 +5,30 @@ import type { NextConfig } from 'next';
  *
  * Key decisions:
  * - reactStrictMode: true for catching bugs early
- * - We use a custom server.js (not `next dev`) for WebSocket support
- * - Konva/react-konva are client-only — all canvas components use 'use client'
- * - Server actions disabled (we use API routes + WebSocket instead)
+ * - We use a custom server.js for WebSocket support
+ * - Konva/react-konva are client-only — 'canvas' aliased to false for Webpack
+ * - Standalone output for Docker deployment
  */
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-
-  /**
-   * Standalone output for production Docker deployments.
-   * Bundles all dependencies into .next/standalone so you can
-   * deploy without node_modules.
-   */
   output: 'standalone',
 
-  /**
-   * Suppress hydration warnings for Konva canvases.
-   * Canvas elements are client-only and won't match server HTML.
-   */
   experimental: {
-    /** Enable server actions for future API endpoints */
     serverActions: {
       bodySizeLimit: '10mb', // Support audio file uploads
     },
   },
 
-  /**
-   * Webpack customizations:
-   * - Exclude server-incompatible modules from SSR bundles
-   */
   webpack: (config, { isServer }) => {
     if (isServer) {
-      // These packages use browser APIs (IndexedDB, WebSocket client)
-      // and must never be bundled for server-side rendering
-      config.externals = config.externals || [];
+      config.externals = [...(config.externals || []), 'canvas'];
     }
+
+    // Ignore Node 'canvas' module fallback in Konva
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      canvas: false,
+    };
 
     return config;
   },
