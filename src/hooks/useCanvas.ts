@@ -24,9 +24,7 @@ export function useCanvas() {
   const clearSelection = useCanvasStore((state) => state.clearSelection);
 
   /**
-   * Wheel event listener for smooth cursor-centered zoom and pan.
-   * - Ctrl/Cmd + Wheel or Pinch → Zoom centered at mouse position
-   * - Standard Wheel → Pan vertical/horizontal
+   * Wheel event listener for smooth cursor-centered zoom.
    */
   const handleWheel = useCallback(
     (e: Konva.KonvaEventObject<WheelEvent>) => {
@@ -38,22 +36,13 @@ export function useCanvas() {
       const pointer = stage.getPointerPosition();
       if (!pointer) return;
 
-      const isZooming = e.evt.ctrlKey || e.evt.metaKey;
-
-      if (isZooming) {
-        // Zoom towards cursor
-        const zoomFactor = e.evt.deltaY < 0 ? 1.1 : 0.9;
-        const targetScale = camera.scale * zoomFactor;
-        const newCamera = zoomToPoint(camera, pointer, targetScale);
-        setCamera(newCamera);
-      } else {
-        // Pan canvas
-        const dx = e.evt.deltaX / camera.scale;
-        const dy = e.evt.deltaY / camera.scale;
-        panBy(dx, dy);
-      }
+      // Zoom centered at current cursor location
+      const zoomFactor = e.evt.deltaY < 0 ? 1.1 : 0.9;
+      const targetScale = camera.scale * zoomFactor;
+      const newCamera = zoomToPoint(camera, pointer, targetScale);
+      setCamera(newCamera);
     },
-    [camera, setCamera, panBy]
+    [camera, setCamera]
   );
 
   /**
@@ -80,8 +69,8 @@ export function useCanvas() {
    */
   const panToWorldPosition = useCallback(
     (worldPos: Position, stageSize: { width: number; height: number }) => {
-      const targetX = worldPos.x - stageSize.width / (2 * camera.scale);
-      const targetY = worldPos.y - stageSize.height / (2 * camera.scale);
+      const targetX = stageSize.width / 2 - worldPos.x * camera.scale;
+      const targetY = stageSize.height / 2 - worldPos.y * camera.scale;
       setCamera({ ...camera, x: targetX, y: targetY });
     },
     [camera, setCamera]

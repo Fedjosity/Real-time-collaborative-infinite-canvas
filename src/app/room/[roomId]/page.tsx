@@ -109,7 +109,8 @@ export default function RoomPage({ params }: RoomPageProps) {
   const handleAddObjectFromToolbar = (type: string, extraData?: Record<string, unknown>) => {
     const centerScreen = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
     const worldCenter = screenToWorld(centerScreen, camera);
-    addObject(type, worldCenter, extraData);
+    const newObj = addObject(type, worldCenter, extraData);
+    if (newObj?.id) selectObject(newObj.id);
   };
 
   return (
@@ -118,7 +119,7 @@ export default function RoomPage({ params }: RoomPageProps) {
       onMouseMove={handleMouseMove}
     >
       {/* Top Header Navigation Bar */}
-      <header className="absolute top-4 left-4 right-4 z-40 flex items-center justify-between glass-panel p-3 px-5 border border-amber-500/20 bg-[#0e0e12]/90 shadow-2xl rounded-2xl pointer-events-auto">
+      <header className="absolute top-4 left-20 right-4 z-40 flex items-center justify-between glass-panel p-3 px-5 border border-amber-500/20 bg-[#0e0e12]/90 shadow-2xl rounded-2xl pointer-events-auto">
         <div className="flex items-center gap-4">
           <button
             onClick={() => router.push('/')}
