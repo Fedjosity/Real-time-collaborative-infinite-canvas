@@ -64,22 +64,56 @@ export function createYjsProviders({
     params: { roomId },
   });
 
+  // Network Offline / Online Browser listeners for instant connection status feedback
+  const handleOffline = () => {
+    console.log('[Yjs WS] Browser network offline detected');
+    if (onStatusChange) onStatusChange('disconnected');
+  };
+
+  const handleOnline = () => {
+    console.log('[Yjs WS] Browser network online detected');
+    if (onStatusChange) {
+      onStatusChange(wsProvider.wsconnected ? 'connected' : 'connecting');
+    }
+  };
+
+  if (typeof window !== 'undefined') {
+    window.addEventListener('offline', handleOffline);
+    window.addEventListener('online', handleOnline);
+  }
+
   // Handle Connection Status events
   wsProvider.on('status', (event: { status: 'connecting' | 'connected' | 'disconnected' }) => {
     console.log(`[Yjs WS] Status change: ${event.status}`);
     if (onStatusChange) {
-      onStatusChange(event.status === 'connected' ? 'connected' : 'connecting');
+      const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
+      if (!isOnline || event.status === 'disconnected') {
+        onStatusChange('disconnected');
+      } else if (event.status === 'connected') {
+        onStatusChange('connected');
+      } else {
+        onStatusChange('connecting');
+      }
     }
   });
 
   wsProvider.on('sync', (isSynced: boolean) => {
     console.log(`[Yjs WS] Room sync state: ${isSynced ? 'synced' : 'syncing'}`);
-    if (onStatusChange && isSynced) {
-      onStatusChange('connected');
+    if (onStatusChange) {
+      const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
+      if (!isOnline) {
+        onStatusChange('disconnected');
+      } else if (isSynced) {
+        onStatusChange('connected');
+      }
     }
   });
 
   const destroy = () => {
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('online', handleOnline);
+    }
     wsProvider.disconnect();
     wsProvider.destroy();
     idbProvider.destroy();

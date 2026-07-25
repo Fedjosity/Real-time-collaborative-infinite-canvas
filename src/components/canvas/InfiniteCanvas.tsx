@@ -103,6 +103,24 @@ export const InfiniteCanvas: React.FC<InfiniteCanvasProps> = ({
         onWheel={handleWheel}
         onClick={handleStageClick}
         onTap={handleStageClick as any}
+        onDragMove={(e) => {
+          if (e.target === stageRef.current) {
+            useCanvasStore.getState().setCamera({
+              ...camera,
+              x: e.target.x(),
+              y: e.target.y(),
+            });
+          }
+        }}
+        onDragEnd={(e) => {
+          if (e.target === stageRef.current) {
+            useCanvasStore.getState().setCamera({
+              ...camera,
+              x: e.target.x(),
+              y: e.target.y(),
+            });
+          }
+        }}
         style={{
           cursor: isPanningActive ? 'grab' : activeTool === 'select' ? 'default' : 'crosshair',
         }}
