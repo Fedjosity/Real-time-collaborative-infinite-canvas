@@ -34,10 +34,10 @@ export interface YjsProviderOptions {
  */
 export function getWebSocketServerUrl(): string {
   if (typeof window === 'undefined') {
-    return 'ws://localhost:3000';
+    return 'ws://localhost:3000/yjs';
   }
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  return `${protocol}//${window.location.host}`;
+  return `${protocol}//${window.location.host}/yjs`;
 }
 
 /**

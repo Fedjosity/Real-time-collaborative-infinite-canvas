@@ -50,6 +50,16 @@ if (!fs.existsSync(uploadDir)) {
   console.log(`[Server] Created upload directory: ${uploadDir}`);
 }
 
+// ─── Ensure Prisma Database Schema is Pushed ────────────────────────────────
+const { execSync } = require('child_process');
+try {
+  console.log('[Server] Syncing Prisma database schema...');
+  execSync('npx prisma db push --skip-generate', { stdio: 'inherit' });
+  console.log('[Server] ✓ Database schema synced successfully');
+} catch (err) {
+  console.warn('[Server] ⚠ Database schema sync skipped or failed (offline fallback active)');
+}
+
 // ─── Initialize Next.js ─────────────────────────────────────────────────────
 const app = next({ dev, hostname, port });
 const handle = app.getRequestHandler();
