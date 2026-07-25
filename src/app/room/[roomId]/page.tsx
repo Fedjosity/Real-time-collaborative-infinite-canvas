@@ -10,6 +10,7 @@ import { JoinModal } from '@/components/auth/JoinModal';
 import { Button } from '@/components/ui/Button';
 import { useYjs } from '@/hooks/useYjs';
 import { useAwareness } from '@/hooks/useAwareness';
+import { usePhysics } from '@/hooks/usePhysics';
 import { useCanvasStore } from '@/store/canvasStore';
 import { useRoomStore } from '@/store/roomStore';
 import { useUIStore } from '@/store/uiStore';
@@ -60,6 +61,12 @@ export default function RoomPage({ params }: RoomPageProps) {
 
   // Live Awareness cursor tracking hook
   const { remoteUsers, updateCursor } = useAwareness(awareness, localUser);
+
+  // Matter.js 2D Physics Engine hook
+  usePhysics({
+    objects,
+    onUpdateObject: (id, attrs) => updateObject(id, attrs),
+  });
 
   // Handle stage pointer movement to broadcast cursor coordinates
   const handleMouseMove = (e: React.MouseEvent) => {
