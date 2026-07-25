@@ -20,6 +20,7 @@ export const MiniMap: React.FC<MiniMapProps> = ({
   height = 140,
 }) => {
   const [mounted, setMounted] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   const camera = useCanvasStore((state) => state.camera);
@@ -89,11 +90,11 @@ export const MiniMap: React.FC<MiniMapProps> = ({
   const vpWidth = Math.max(16, vpMiniBR.x - vpMiniTL.x);
   const vpHeight = Math.max(12, vpMiniBR.y - vpMiniTL.y);
 
-  const handleMiniMapClick = (e: React.MouseEvent<HTMLDivElement>) => {
+  const updateCameraFromMiniMap = (clientX: number, clientY: number) => {
     if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const clickY = e.clientY - rect.top;
+    const clickX = Math.max(0, Math.min(width, clientX - rect.left));
+    const clickY = Math.max(0, Math.min(height, clientY - rect.top));
 
     const targetWorldX = bounds.minX + clickX / scaleX;
     const targetWorldY = bounds.minY + clickY / scaleY;
@@ -108,11 +109,29 @@ export const MiniMap: React.FC<MiniMapProps> = ({
     });
   };
 
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    setIsDragging(true);
+    updateCameraFromMiniMap(e.clientX, e.clientY);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (isDragging) {
+      updateCameraFromMiniMap(e.clientX, e.clientY);
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
   return (
     <div
       ref={containerRef}
-      onClick={handleMiniMapClick}
-      className="relative glass-panel bg-[#0e0e12]/95 border border-amber-500/30 shadow-2xl rounded-xl overflow-hidden cursor-pointer select-none group"
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
+      className="relative glass-panel bg-[#0e0e12]/95 border border-amber-500/30 shadow-2xl rounded-xl overflow-hidden cursor-crosshair select-none group"
       style={{ width: `${width}px`, height: `${height}px` }}
     >
       {/* Background Grid */}
@@ -163,7 +182,7 @@ export const MiniMap: React.FC<MiniMapProps> = ({
 
       {/* Local Camera Viewport Highlight Box */}
       <div
-        className="absolute border-2 border-amber-400 bg-amber-400/10 rounded pointer-events-none transition-all duration-75 shadow-gold-glow"
+        className="absolute border-2 border-amber-400 bg-amber-400/10 rounded pointer-events-none shadow-gold-glow"
         style={{
           left: `${Math.max(0, Math.min(width - vpWidth, vpMiniTL.x))}px`,
           top: `${Math.max(0, Math.min(height - vpHeight, vpMiniTL.y))}px`,

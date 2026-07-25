@@ -55,16 +55,19 @@ export const CanvasObjectItem: React.FC<CanvasObjectProps> = ({
     const scaleX = node.scaleX();
     const scaleY = node.scaleY();
 
-    // Reset scale and update explicit width/height
+    // Reset scale and update explicit width/height in state based on current object dimensions
     node.scaleX(1);
     node.scaleY(1);
+
+    const newWidth = Math.max(20, Math.round(object.width * scaleX));
+    const newHeight = Math.max(20, Math.round(object.height * scaleY));
 
     onChange(object.id, {
       x: node.x(),
       y: node.y(),
-      width: Math.max(20, node.width() * scaleX),
-      height: Math.max(20, node.height() * scaleY),
-      rotation: node.rotation(),
+      width: newWidth,
+      height: newHeight,
+      rotation: Math.round(node.rotation()),
     });
   };
 
@@ -113,6 +116,8 @@ export const CanvasObjectItem: React.FC<CanvasObjectProps> = ({
         ref={groupRef}
         x={object.x}
         y={object.y}
+        width={object.width}
+        height={object.height}
         rotation={object.rotation}
         draggable={!object.locked}
         onDragEnd={handleDragEnd}
@@ -127,7 +132,6 @@ export const CanvasObjectItem: React.FC<CanvasObjectProps> = ({
         <Transformer
           ref={trRef}
           boundBoxFunc={(oldBox, newBox) => {
-            // Enforce min 20px size
             if (newBox.width < 20 || newBox.height < 20) {
               return oldBox;
             }
@@ -138,7 +142,7 @@ export const CanvasObjectItem: React.FC<CanvasObjectProps> = ({
           anchorFill="#38BDF8"
           anchorStroke="#0F172A"
           borderStroke="#38BDF8"
-          borderDash={[4, 4]}
+          borderStrokeWidth={1.5}
         />
       )}
     </>

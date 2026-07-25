@@ -105,12 +105,39 @@ export default function RoomPage({ params }: RoomPageProps) {
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
-  // Handle adding objects from Toolbar
+  const setActiveTool = useCanvasStore((state) => state.setActiveTool);
+  const activeTool = useCanvasStore((state) => state.activeTool);
+  const shapeType = useCanvasStore((state) => state.shapeType);
+
+  // Handle adding objects from Toolbar with Smart Staggered Position
   const handleAddObjectFromToolbar = (type: string, extraData?: Record<string, unknown>) => {
     const centerScreen = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
     const worldCenter = screenToWorld(centerScreen, camera);
-    const newObj = addObject(type, worldCenter, extraData);
+
+    // Stagger offset (30px) so consecutive objects never stack directly on top of each other
+    const staggerOffset = (objects.length * 30) % 240;
+    const spawnPos = {
+      x: worldCenter.x + staggerOffset,
+      y: worldCenter.y + staggerOffset,
+    };
+
+    const newObj = addObject(type, spawnPos, extraData);
     if (newObj?.id) selectObject(newObj.id);
+  };
+
+  // Handle clicking empty canvas space to place active creation tool at exact cursor position
+  const handleStageClick = (e: any) => {
+    const stage = e.target?.getStage();
+    if (!stage) return;
+    const pointer = stage.getPointerPosition();
+    if (!pointer) return;
+
+    if (activeTool === 'text' || activeTool === 'shape' || activeTool === 'sticky') {
+      const worldPos = screenToWorld(pointer, camera);
+      const newObj = addObject(activeTool, worldPos, { shapeType });
+      if (newObj?.id) selectObject(newObj.id);
+      setActiveTool('select');
+    }
   };
 
   return (
@@ -230,6 +257,7 @@ export default function RoomPage({ params }: RoomPageProps) {
           selectedObjectIds={selectedObjectIds}
           onSelectObject={(id, multi) => selectObject(id, multi)}
           onUpdateObject={(id, attrs) => updateObject(id, attrs)}
+          onStageClick={handleStageClick}
         />
 
         {/* Live User Presence Cursors Overlay */}
