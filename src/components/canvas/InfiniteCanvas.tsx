@@ -90,7 +90,7 @@ export const InfiniteCanvas: React.FC<InfiniteCanvasProps> = ({
   const isPanningActive = activeTool === 'pan' || isSpacePressed;
 
   return (
-    <div className="relative w-full h-full overflow-hidden bg-[#070709]">
+    <div className="relative w-full h-full overflow-hidden bg-[#f8f9fa]">
       <Stage
         ref={stageRef}
         width={dimensions.width}

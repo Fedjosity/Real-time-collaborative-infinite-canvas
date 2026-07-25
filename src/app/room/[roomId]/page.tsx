@@ -172,7 +172,7 @@ export default function RoomPage({ params }: RoomPageProps) {
       onMouseMove={handleMouseMove}
     >
       {/* STITCH RESPONSIVE TOP HEADER */}
-      <header className="bg-white/80 dark:bg-inverse-surface/80 backdrop-blur-xl border-b border-outline-variant/30 shadow-sm flex justify-between items-center h-16 px-4 md:px-6 w-full fixed top-0 z-50">
+      <header className="bg-white/80 backdrop-blur-xl border-b border-outline-variant/30 shadow-sm flex justify-between items-center h-16 px-4 md:px-6 w-full fixed top-0 z-50">
         <div className="flex items-center gap-3 md:gap-6">
           <button
             onClick={() => router.push('/')}

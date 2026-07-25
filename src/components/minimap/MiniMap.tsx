@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import type { CanvasObject, Camera, BoundingBox } from '@/types/canvas';
-import type { User } from '@/types/room';
-import { useCanvasStore } from '@/store/canvasStore';
-import { screenToWorld } from '@/lib/canvas/viewport';
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import type { CanvasObject, Camera, BoundingBox } from "@/types/canvas";
+import type { User } from "@/types/room";
+import { useCanvasStore } from "@/store/canvasStore";
+import { screenToWorld } from "@/lib/canvas/viewport";
 
 export interface MiniMapProps {
   objects: CanvasObject[];
@@ -60,7 +60,7 @@ export const MiniMap: React.FC<MiniMapProps> = ({
   if (!mounted) {
     return (
       <div
-        className="glass-panel bg-[#0e0e12]/95 border border-amber-500/30 rounded-xl"
+        className="bg-white/90 backdrop-blur-md border border-[#bfc7d5] shadow-lg rounded-xl"
         style={{ width: `${width}px`, height: `${height}px` }}
       />
     );
@@ -81,7 +81,7 @@ export const MiniMap: React.FC<MiniMapProps> = ({
   const viewportWorldTL = screenToWorld({ x: 0, y: 0 }, camera);
   const viewportWorldBR = screenToWorld(
     { x: window.innerWidth, y: window.innerHeight },
-    camera
+    camera,
   );
 
   const vpMiniTL = worldToMiniMap(viewportWorldTL.x, viewportWorldTL.y);
@@ -131,18 +131,26 @@ export const MiniMap: React.FC<MiniMapProps> = ({
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
-      className="relative glass-panel bg-[#0e0e12]/95 border border-amber-500/30 shadow-2xl rounded-xl overflow-hidden cursor-crosshair select-none group"
+      className="relative bg-white/90 backdrop-blur-md border border-[#bfc7d5] shadow-lg rounded-xl overflow-hidden cursor-crosshair select-none group"
       style={{ width: `${width}px`, height: `${height}px` }}
     >
       {/* Background Grid */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-40 pointer-events-none" />
+      <div
+        className="absolute inset-0 opacity-10 pointer-events-none"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle, #0061a5 1px, transparent 1px)",
+          backgroundSize: "16px 16px",
+        }}
+      />
 
       {/* Render Canvas Objects as Simplified Rectangles */}
       {objects.map((obj) => {
         const pos = worldToMiniMap(obj.x, obj.y);
         const w = Math.max(3, obj.width * scaleX);
         const h = Math.max(3, obj.height * scaleY);
-        const color = (obj.data as any)?.color || (obj.data as any)?.fill || '#D4AF37';
+        const color =
+          (obj.data as any)?.color || (obj.data as any)?.fill || "#0d99ff";
 
         return (
           <div
@@ -173,16 +181,16 @@ export const MiniMap: React.FC<MiniMapProps> = ({
               style={{
                 left: `${pos.x - 5}px`,
                 top: `${pos.y - 5}px`,
-                backgroundColor: user.color || '#D4AF37',
+                backgroundColor: user.color || "#D4AF37",
               }}
               title={user.username}
             />
           );
         })}
 
-      {/* Local Camera Viewport Highlight Box */}
+      {/* Viewport Indicator */}
       <div
-        className="absolute border-2 border-amber-400 bg-amber-400/10 rounded pointer-events-none shadow-gold-glow"
+        className="absolute border-2 border-[#0061a5] bg-[#0061a5]/10 rounded-sm pointer-events-none transition-all duration-75 ease-out shadow-sm"
         style={{
           left: `${Math.max(0, Math.min(width - vpWidth, vpMiniTL.x))}px`,
           top: `${Math.max(0, Math.min(height - vpHeight, vpMiniTL.y))}px`,
@@ -190,11 +198,6 @@ export const MiniMap: React.FC<MiniMapProps> = ({
           height: `${vpHeight}px`,
         }}
       />
-
-      {/* Mini-Map Header Label */}
-      <div className="absolute top-1.5 left-2 text-[10px] font-bold font-mono text-amber-300/80 uppercase pointer-events-none tracking-wider">
-        MINI-MAP
-      </div>
     </div>
   );
 };

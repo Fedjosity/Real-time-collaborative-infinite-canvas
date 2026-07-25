@@ -111,7 +111,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({ onAddObject }) => {
       />
 
       {/* DESKTOP SIDEBAR TOOLBAR (Floating Vertical Bar) */}
-      <nav className="fixed left-4 top-1/2 -translate-y-1/2 hidden md:flex flex-col items-center gap-1.5 z-40 py-4 px-2 bg-white/90 dark:bg-inverse-surface/90 backdrop-blur-xl rounded-full border border-outline-variant/30 shadow-xl">
+      <nav className="fixed left-4 top-1/2 -translate-y-1/2 hidden md:flex flex-col items-center gap-1.5 z-40 py-4 px-2 bg-white/90 backdrop-blur-xl rounded-full border border-outline-variant/30 shadow-xl">
         {/* Select Tool */}
         <button
           onClick={() => setActiveTool('select')}
@@ -256,7 +256,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({ onAddObject }) => {
             <CircleIcon style={{ color: currentColor }} fontSize="small" />
           </button>
           {showColorPicker && (
-            <div className="absolute left-16 top-0 z-50 glass-panel p-2 bg-white/95 dark:bg-inverse-surface/95 border border-outline-variant/30 shadow-2xl rounded-2xl flex flex-col gap-1.5 w-10 animate-in fade-in zoom-in-95">
+            <div className="absolute left-16 top-0 z-50 p-2 bg-white/95 border border-outline-variant/30 shadow-2xl rounded-2xl flex flex-col gap-1.5 w-10 animate-in fade-in zoom-in-95">
               {paletteColors.map((c) => (
                 <button
                   key={c}
@@ -301,7 +301,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({ onAddObject }) => {
 
       {/* MOBILE ADAPTIVE TOOLBAR (Bottom Horizontal Bar) */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 pb-4 px-4 flex justify-center pointer-events-none md:hidden">
-        <div className="glass-panel rounded-full h-16 w-full max-w-md flex items-center justify-between px-3 gap-1 pointer-events-auto bg-white/90 dark:bg-inverse-surface/90 border border-outline-variant/30 shadow-2xl overflow-x-auto no-scrollbar">
+        <div className="rounded-full h-16 w-full max-w-md flex items-center justify-between px-3 gap-1 pointer-events-auto bg-white/90 border border-outline-variant/30 shadow-2xl overflow-x-auto no-scrollbar">
           <button
             onClick={() => setActiveTool('select')}
             className={`min-w-[44px] h-11 rounded-full flex items-center justify-center transition-all ${

@@ -13,10 +13,10 @@ const InfiniteCanvasClient = dynamic<InfiniteCanvasProps>(
   {
     ssr: false,
     loading: () => (
-      <div className="w-full h-full flex items-center justify-center bg-[#070709] text-amber-300 font-mono text-sm">
-        <div className="flex items-center gap-3 glass-panel px-6 py-4 border border-amber-500/30">
-          <span className="w-3 h-3 rounded-full bg-amber-400 animate-ping" />
-          <span>Initializing 2D Canvas Engine...</span>
+      <div className="w-full h-full flex items-center justify-center bg-[#f8f9fa] text-[#0061a5] font-sans text-sm">
+        <div className="flex items-center gap-3 bg-white/80 backdrop-blur-xl px-6 py-4 rounded-2xl border border-[#bfc7d5] shadow-lg">
+          <span className="w-3 h-3 rounded-full bg-[#0d99ff] animate-ping" />
+          <span className="font-medium">Initializing Canvas Engine...</span>
         </div>
       </div>
     ),
