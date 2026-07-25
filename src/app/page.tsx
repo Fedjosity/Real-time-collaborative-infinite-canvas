@@ -50,7 +50,7 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="relative min-h-screen w-full bg-[#070709] text-slate-100 flex flex-col items-center justify-between overflow-x-hidden bg-grid-pattern">
+    <div className="relative min-h-screen w-full bg-[#070709] text-slate-100 flex flex-col items-center justify-between bg-grid-pattern">
       {/* Gold Glow Background Effects */}
       <div className="absolute top-[-10%] left-[25%] w-[500px] h-[500px] bg-amber-500/10 rounded-full blur-[140px] pointer-events-none animate-glow" />
       <div className="absolute bottom-[-10%] right-[20%] w-[450px] h-[450px] bg-yellow-600/10 rounded-full blur-[140px] pointer-events-none animate-glow" />
