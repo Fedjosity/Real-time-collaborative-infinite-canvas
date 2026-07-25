@@ -45,6 +45,7 @@
     "@testing-library/react": "^16.3.0",
     "@types/matter-js": "^0.19.7",
     "@types/node": "^22.15.0",
+    "@types/rbush": "^4.0.0",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
     "@types/ws": "^8.18.0",
