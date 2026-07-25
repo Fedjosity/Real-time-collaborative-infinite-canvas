@@ -20,9 +20,9 @@ export const ShapeObject: React.FC<ShapeObjectProps> = ({
   const shapeType = data.shapeType || 'rectangle';
 
   const commonProps = {
-    x: object.x,
-    y: object.y,
-    rotation: object.rotation,
+    x: 0,
+    y: 0,
+    rotation: 0,
     fill: data.fill || '#6366F1',
     stroke: isSelected ? '#38BDF8' : data.stroke || '#818CF8',
     strokeWidth: isSelected ? (data.strokeWidth || 2) + 1 : data.strokeWidth || 2,

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { Group, Rect, Text, Circle } from 'react-konva';
+import { Group, Rect, Circle, Text } from 'react-konva';
 import type Konva from 'konva';
 import type { CanvasObject, AudioData } from '@/types/canvas';
 
@@ -49,9 +49,11 @@ export const AudioObject: React.FC<AudioObjectProps> = ({
   };
 
   return (
-    <Group x={object.x} y={object.y} rotation={object.rotation} onClick={onSelect} onTap={onSelect}>
+    <Group x={0} y={0} rotation={0} onClick={onSelect} onTap={onSelect}>
       {/* Audio Card Base */}
       <Rect
+        x={0}
+        y={0}
         width={object.width}
         height={object.height}
         fill="#0F172A"
@@ -60,56 +62,44 @@ export const AudioObject: React.FC<AudioObjectProps> = ({
         cornerRadius={12}
         shadowColor="rgba(0, 0, 0, 0.4)"
         shadowBlur={8}
+        shadowOffsetY={4}
       />
 
-      {/* Play/Pause Button Circle */}
-      <Circle
-        x={28}
-        y={object.height / 2}
-        radius={16}
-        fill={isPlaying ? '#EC4899' : '#6366F1'}
-        onClick={togglePlayback}
-        onTap={togglePlayback}
-      />
-
-      {/* Play / Pause Icon Label */}
-      <Text
-        x={21}
-        y={object.height / 2 - 7}
-        text={isPlaying ? '❚❚' : '▶'}
-        fontSize={12}
-        fill="#FFFFFF"
-        onClick={togglePlayback}
-        onTap={togglePlayback}
-      />
-
-      {/* Waveform Amplitudes Visualization */}
-      <Group x={56} y={object.height / 2 - 12}>
-        {waveform.map((amp, idx) => {
-          const barHeight = Math.max(4, amp * 24);
-          return (
-            <Rect
-              key={idx}
-              x={idx * 7}
-              y={12 - barHeight / 2}
-              width={4}
-              height={barHeight}
-              fill={isPlaying ? '#F472B6' : '#818CF8'}
-              cornerRadius={2}
-              opacity={isPlaying ? 0.9 : 0.6}
-            />
-          );
-        })}
+      {/* Play / Pause Toggle Button */}
+      <Group x={24} y={object.height / 2} onClick={togglePlayback} onTap={togglePlayback}>
+        <Circle radius={16} fill={isPlaying ? '#EF4444' : '#6366F1'} />
+        <Text
+          x={-6}
+          y={-6}
+          text={isPlaying ? '❚❚' : '▶'}
+          fontSize={10}
+          fill="#FFFFFF"
+        />
       </Group>
 
-      {/* Duration Display */}
+      {/* Audio Waveform Bars Visualization */}
+      <Group x={52} y={object.height / 2 - 12}>
+        {waveform.slice(0, 16).map((val, idx) => (
+          <Rect
+            key={idx}
+            x={idx * 8}
+            y={12 - (val * 24) / 2}
+            width={4}
+            height={Math.max(4, val * 24)}
+            fill={isPlaying ? '#818CF8' : '#475569'}
+            cornerRadius={2}
+          />
+        ))}
+      </Group>
+
+      {/* Duration Label */}
       <Text
-        x={object.width - 45}
+        x={object.width - 50}
         y={object.height / 2 - 6}
         text={formatTime(duration)}
         fontSize={11}
-        fontFamily="JetBrains Mono, monospace"
         fill="#94A3B8"
+        fontFamily="sans-serif"
       />
     </Group>
   );

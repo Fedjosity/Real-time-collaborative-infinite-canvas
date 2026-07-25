@@ -31,19 +31,17 @@ export const TextObject: React.FC<TextObjectProps> = ({
     setIsEditing(true);
   };
 
-  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setTextValue(e.target.value);
-  };
-
   const handleBlur = () => {
     setIsEditing(false);
     onUpdate({ content: textValue });
   };
 
   return (
-    <Group x={object.x} y={object.y} rotation={object.rotation} onClick={onSelect} onTap={onSelect}>
+    <Group x={0} y={0} rotation={0} onClick={onSelect} onTap={onSelect}>
       <Text
         ref={textRef}
+        x={0}
+        y={0}
         text={textValue}
         fontSize={data.fontSize || 18}
         fontFamily={data.fontFamily || 'Inter, sans-serif'}

@@ -14,6 +14,7 @@ import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
 import { IndexeddbPersistence } from 'y-indexeddb';
 import type { ConnectionStatus } from '@/types/room';
+import { useRoomStore } from '@/store/roomStore';
 
 export interface YjsProviders {
   wsProvider: WebsocketProvider;
@@ -68,12 +69,16 @@ export function createYjsProviders({
   const handleOffline = () => {
     console.log('[Yjs WS] Browser network offline detected');
     if (onStatusChange) onStatusChange('disconnected');
+    try {
+      useRoomStore.getState().setConnectionStatus('disconnected');
+    } catch {}
   };
 
   const handleOnline = () => {
     console.log('[Yjs WS] Browser network online detected');
     if (onStatusChange) {
       onStatusChange(wsProvider.wsconnected ? 'connected' : 'connecting');
+      useRoomStore.getState().setConnectionStatus(wsProvider.wsconnected ? 'connected' : 'connecting');
     }
   };
 
@@ -85,28 +90,28 @@ export function createYjsProviders({
   // Handle Connection Status events
   wsProvider.on('status', (event: { status: 'connecting' | 'connected' | 'disconnected' }) => {
     console.log(`[Yjs WS] Status change: ${event.status}`);
-    if (onStatusChange) {
-      const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
-      if (!isOnline || event.status === 'disconnected') {
-        onStatusChange('disconnected');
-      } else if (event.status === 'connected') {
-        onStatusChange('connected');
-      } else {
-        onStatusChange('connecting');
-      }
-    }
+    const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
+    const targetStatus: ConnectionStatus = (!isOnline || event.status === 'disconnected')
+      ? 'disconnected'
+      : event.status === 'connected'
+      ? 'connected'
+      : 'connecting';
+
+    if (onStatusChange) onStatusChange(targetStatus);
+    try {
+      useRoomStore.getState().setConnectionStatus(targetStatus);
+    } catch {}
   });
 
   wsProvider.on('sync', (isSynced: boolean) => {
     console.log(`[Yjs WS] Room sync state: ${isSynced ? 'synced' : 'syncing'}`);
-    if (onStatusChange) {
-      const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
-      if (!isOnline) {
-        onStatusChange('disconnected');
-      } else if (isSynced) {
-        onStatusChange('connected');
-      }
-    }
+    const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
+    const targetStatus: ConnectionStatus = !isOnline ? 'disconnected' : isSynced ? 'connected' : 'syncing';
+
+    if (onStatusChange) onStatusChange(targetStatus);
+    try {
+      useRoomStore.getState().setConnectionStatus(targetStatus);
+    } catch {}
   });
 
   const destroy = () => {

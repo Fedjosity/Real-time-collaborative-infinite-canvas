@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Group, Rect, Text } from 'react-konva';
 import type Konva from 'konva';
 import type { CanvasObject, StickyData } from '@/types/canvas';
@@ -24,63 +24,53 @@ export const StickyNote: React.FC<StickyNoteProps> = ({
 
   return (
     <Group
-      x={object.x}
-      y={object.y}
-      rotation={object.rotation}
+      x={0}
+      y={0}
+      rotation={0}
       onClick={onSelect}
       onTap={onSelect}
     >
       {/* Sticky Note Card Base */}
       <Rect
+        x={0}
+        y={0}
         width={object.width}
         height={object.height}
         fill={bgColor}
         cornerRadius={6}
         stroke={isSelected ? '#38BDF8' : 'rgba(0, 0, 0, 0.15)'}
         strokeWidth={isSelected ? 3 : 1}
-        shadowColor="rgba(0, 0, 0, 0.3)"
-        shadowBlur={isSelected ? 14 : 8}
+        shadowColor={isSelected ? '#38BDF8' : 'rgba(0, 0, 0, 0.35)'}
+        shadowBlur={isSelected ? 16 : 8}
         shadowOffsetY={4}
         shadowOpacity={0.4}
+        opacity={object.opacity ?? 1}
       />
 
-      {/* Sticky Tape / Pin Visual Accent at Top */}
+      {/* Folded Corner Decorator */}
       <Rect
-        x={object.width / 2 - 20}
-        y={-6}
-        width={40}
-        height={12}
-        fill="rgba(255, 255, 255, 0.4)"
-        cornerRadius={2}
+        x={object.width - 20}
+        y={0}
+        width={20}
+        height={20}
+        fill="rgba(0, 0, 0, 0.08)"
+        cornerRadius={[0, 6, 0, 6]}
       />
 
-      {/* Sticky Content Text */}
+      {/* Sticky Note Content Text */}
       <Text
         x={12}
-        y={16}
+        y={14}
         width={object.width - 24}
-        height={object.height - 36}
-        text={data.content || 'Sticky Note...'}
+        height={object.height - 28}
+        text={data.content || 'Sticky Note'}
         fontSize={data.fontSize || 14}
-        fontFamily="Inter, sans-serif"
+        fontFamily="sans-serif"
         fill={textColor}
+        lineHeight={1.4}
         wrap="word"
+        ellipsis={true}
       />
-
-      {/* Author Attribution Footer */}
-      {data.author && (
-        <Text
-          x={12}
-          y={object.height - 20}
-          width={object.width - 24}
-          text={`— ${data.author}`}
-          fontSize={11}
-          fontFamily="Inter, sans-serif"
-          fontStyle="italic"
-          fill="rgba(0, 0, 0, 0.45)"
-          align="right"
-        />
-      )}
     </Group>
   );
 };
