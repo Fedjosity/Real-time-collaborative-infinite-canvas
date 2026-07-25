@@ -12,6 +12,8 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "test": "vitest run",
@@ -38,6 +40,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.52.0",
+    "@tailwindcss/postcss": "^4.3.3",
     "@testing-library/jest-dom": "^6.6.0",
     "@testing-library/react": "^16.3.0",
     "@types/matter-js": "^0.19.7",
@@ -46,7 +49,9 @@
     "@types/react-dom": "^19.1.0",
     "@types/ws": "^8.18.0",
     "jsdom": "^26.1.0",
+    "postcss": "^8.5.23",
     "prisma": "^6.9.0",
+    "tailwindcss": "^4.3.3",
     "typescript": "^5.8.0",
     "vitest": "^3.2.0"
   }

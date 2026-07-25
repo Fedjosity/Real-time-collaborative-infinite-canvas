@@ -1,6 +1,8 @@
 /* =============================================================================
-   CollabCanvas — Global Styles & Design System Tokens
+   CollabCanvas — Global Styles & Tailwind CSS Integration
    ============================================================================= */
+
+@import "tailwindcss";
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 
@@ -65,7 +67,7 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Scrollbar styling */
+/* Custom scrollbar styling */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
