@@ -9,6 +9,7 @@ import { PeerRadar } from '@/components/minimap/PeerRadar';
 import { Toolbar } from '@/components/toolbar/Toolbar';
 import { OfflineBanner } from '@/components/ui/OfflineBanner';
 import { TimeTravelBar } from '@/components/timetravel/TimeTravelBar';
+import { ExportMenu } from '@/components/export/ExportMenu';
 import { JoinModal } from '@/components/auth/JoinModal';
 import { Button } from '@/components/ui/Button';
 import { useYjs } from '@/hooks/useYjs';
@@ -178,6 +179,18 @@ export default function RoomPage({ params }: RoomPageProps) {
           >
             {isReplaying ? 'Exit Replay' : 'Time Travel'}
           </Button>
+
+          {/* Export & Import Menu Dropdown */}
+          <ExportMenu
+            objects={objects}
+            roomId={roomId}
+            onImportObjects={(imported) => {
+              imported.forEach((obj) => {
+                addObject(obj.type, { x: obj.x, y: obj.y }, (obj.data as unknown as Record<string, unknown>) || {});
+              });
+              addToast({ type: 'success', message: `Imported ${imported.length} objects!` });
+            }}
+          />
 
           {/* Share Room Button */}
           <Button
