@@ -34,8 +34,8 @@ export const CursorOverlay: React.FC<CursorOverlayProps> = ({ users, camera }) =
             <svg
               className="w-5 h-5 drop-shadow-md"
               viewBox="0 0 24 24"
-              fill={user.color || '#D4AF37'}
-              stroke="#070709"
+              fill={user.color || '#0d99ff'}
+              stroke="#f8f9fa"
               strokeWidth="1.5"
             >
               <path d="M3 3l7 18 3-7 7-3L3 3z" />
@@ -43,8 +43,8 @@ export const CursorOverlay: React.FC<CursorOverlayProps> = ({ users, camera }) =
 
             {/* Username Badge */}
             <span
-              className="px-2 py-0.5 rounded-full text-[11px] font-semibold text-slate-950 shadow-lg whitespace-nowrap"
-              style={{ backgroundColor: user.color || '#D4AF37' }}
+              className="px-2 py-0.5 rounded-full text-[11px] font-semibold text-on-surface shadow-lg whitespace-nowrap"
+              style={{ backgroundColor: user.color || '#0d99ff' }}
             >
               {user.username}
             </span>

@@ -28,13 +28,13 @@ export const Button: React.FC<ButtonProps> = ({
 
   const variantStyles = {
     primary:
-      'bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 shadow-lg shadow-amber-500/20 border border-amber-300/40 font-bold',
+      'bg-gradient-to-r from-primary-container via-primary to-tertiary hover:from-on-primary-container hover:to-primary text-on-surface shadow-lg shadow-outline-variant/20 border border-on-primary-container/40 font-bold',
     secondary:
-      'bg-slate-900/90 hover:bg-slate-800 text-amber-200 border border-amber-500/30 hover:border-amber-400/60 shadow-md',
+      'bg-on-surface/90 hover:bg-surface-variant text-on-surface-variant border border-outline-variant/30 hover:border-primary-container/60 shadow-md',
     outline:
-      'bg-transparent hover:bg-amber-500/10 text-amber-300 border border-amber-500/40 hover:border-amber-400',
+      'bg-transparent hover:bg-primary/10 text-on-primary-container border border-primary/40 hover:border-primary-container',
     ghost:
-      'bg-transparent hover:bg-amber-500/10 text-amber-300 hover:text-amber-200',
+      'bg-transparent hover:bg-primary/10 text-on-primary-container hover:text-on-surface-variant',
     danger:
       'bg-rose-600 hover:bg-rose-500 text-white shadow-lg shadow-rose-500/20 border border-rose-400/30',
   };

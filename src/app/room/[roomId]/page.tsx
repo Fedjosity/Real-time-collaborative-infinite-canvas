@@ -316,22 +316,22 @@ export default function RoomPage({ params }: RoomPageProps) {
         {/* Responsive Creative Toolbar (Desktop left bar + Mobile bottom bar) */}
         <Toolbar onAddObject={handleAddObjectFromToolbar} />
 
-        {/* Zoom Controls (Bottom Left) */}
-        <div className="fixed bottom-24 md:bottom-6 left-4 z-40 flex flex-col gap-1">
-          <div className="glass-panel flex flex-col rounded-full p-1 border border-outline-variant/20 shadow-md bg-white/90 dark:bg-inverse-surface/90">
+        {/* Zoom Controls (Bottom Left, offset to avoid toolbar overlap) */}
+        <div className="fixed bottom-24 md:bottom-6 left-20 z-40 flex flex-col gap-1">
+          <div className="flex flex-col rounded-full p-1 border border-outline-variant/30 shadow-md bg-white/90 backdrop-blur-md">
             <button
               onClick={() => handleZoom(1.2)}
-              className="w-9 h-9 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high rounded-full active:scale-95 transition-all"
+              className="w-9 h-9 flex items-center justify-center text-primary hover:bg-surface-container-high rounded-full active:scale-95 transition-all"
               title="Zoom In"
             >
               <AddIcon fontSize="small" />
             </button>
-            <div className="text-center font-bold text-[11px] py-1 text-on-surface-variant">
+            <div className="text-center font-bold text-[11px] py-1 text-on-surface">
               {Math.round(camera.scale * 100)}%
             </div>
             <button
               onClick={() => handleZoom(0.8)}
-              className="w-9 h-9 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high rounded-full active:scale-95 transition-all"
+              className="w-9 h-9 flex items-center justify-center text-primary hover:bg-surface-container-high rounded-full active:scale-95 transition-all"
               title="Zoom Out"
             >
               <RemoveIcon fontSize="small" />

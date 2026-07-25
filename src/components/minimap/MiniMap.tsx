@@ -177,11 +177,11 @@ export const MiniMap: React.FC<MiniMapProps> = ({
           return (
             <div
               key={user.id || user.clientId}
-              className="absolute w-2.5 h-2.5 rounded-full pointer-events-none shadow-md border border-slate-950 animate-pulse"
+              className="absolute w-2.5 h-2.5 rounded-full pointer-events-none shadow-md border border-on-surface animate-pulse"
               style={{
                 left: `${pos.x - 5}px`,
                 top: `${pos.y - 5}px`,
-                backgroundColor: user.color || "#D4AF37",
+                backgroundColor: user.color || "#0d99ff",
               }}
               title={user.username}
             />

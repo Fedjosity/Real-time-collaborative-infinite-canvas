@@ -111,7 +111,7 @@ export const ExportMenu: React.FC<ExportMenuProps> = ({
         isLoading={isExporting}
         onClick={() => setIsOpen(!isOpen)}
         icon={
-          <svg className="w-4 h-4 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-4 h-4 text-on-primary-container" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
           </svg>
         }
@@ -120,11 +120,11 @@ export const ExportMenu: React.FC<ExportMenuProps> = ({
       </Button>
 
       {isOpen && (
-        <div className="absolute right-0 top-12 z-50 w-52 glass-panel p-1.5 bg-[#0e0e12]/95 border border-amber-500/30 shadow-2xl rounded-xl flex flex-col gap-1 text-xs">
+        <div className="absolute right-0 top-12 z-50 w-52 glass-panel p-1.5 bg-[#ffffff]/95 border border-outline-variant/30 shadow-2xl rounded-xl flex flex-col gap-1 text-xs">
           {/* PNG Export */}
           <button
             onClick={handleExportPng}
-            className="flex items-center gap-2.5 px-3 py-2 text-slate-200 hover:text-amber-300 hover:bg-slate-800/60 rounded-lg transition-colors text-left cursor-pointer font-medium"
+            className="flex items-center gap-2.5 px-3 py-2 text-slate-200 hover:text-on-primary-container hover:bg-surface-variant/60 rounded-lg transition-colors text-left cursor-pointer font-medium"
           >
             <span>🖼️</span>
             <span>Export PNG Image</span>
@@ -133,7 +133,7 @@ export const ExportMenu: React.FC<ExportMenuProps> = ({
           {/* JPEG Export */}
           <button
             onClick={handleExportJpeg}
-            className="flex items-center gap-2.5 px-3 py-2 text-slate-200 hover:text-amber-300 hover:bg-slate-800/60 rounded-lg transition-colors text-left cursor-pointer font-medium"
+            className="flex items-center gap-2.5 px-3 py-2 text-slate-200 hover:text-on-primary-container hover:bg-surface-variant/60 rounded-lg transition-colors text-left cursor-pointer font-medium"
           >
             <span>📷</span>
             <span>Export JPEG Image</span>
@@ -142,7 +142,7 @@ export const ExportMenu: React.FC<ExportMenuProps> = ({
           {/* SVG Vector Export */}
           <button
             onClick={handleExportSvg}
-            className="flex items-center gap-2.5 px-3 py-2 text-slate-200 hover:text-amber-300 hover:bg-slate-800/60 rounded-lg transition-colors text-left cursor-pointer font-medium"
+            className="flex items-center gap-2.5 px-3 py-2 text-slate-200 hover:text-on-primary-container hover:bg-surface-variant/60 rounded-lg transition-colors text-left cursor-pointer font-medium"
           >
             <span>🎨</span>
             <span>Export SVG Vector</span>
@@ -151,18 +151,18 @@ export const ExportMenu: React.FC<ExportMenuProps> = ({
           {/* JSON Workspace Export */}
           <button
             onClick={handleExportJson}
-            className="flex items-center gap-2.5 px-3 py-2 text-slate-200 hover:text-amber-300 hover:bg-slate-800/60 rounded-lg transition-colors text-left cursor-pointer font-medium"
+            className="flex items-center gap-2.5 px-3 py-2 text-slate-200 hover:text-on-primary-container hover:bg-surface-variant/60 rounded-lg transition-colors text-left cursor-pointer font-medium"
           >
             <span>📄</span>
             <span>Export JSON Workspace</span>
           </button>
 
-          <div className="my-1 border-t border-amber-500/20" />
+          <div className="my-1 border-t border-outline-variant/20" />
 
           {/* JSON Workspace Import */}
           <button
             onClick={handleImportClick}
-            className="flex items-center gap-2.5 px-3 py-2 text-amber-300 hover:text-amber-200 hover:bg-slate-800/60 rounded-lg transition-colors text-left cursor-pointer font-semibold"
+            className="flex items-center gap-2.5 px-3 py-2 text-on-primary-container hover:text-on-surface-variant hover:bg-surface-variant/60 rounded-lg transition-colors text-left cursor-pointer font-semibold"
           >
             <span>📂</span>
             <span>Import JSON Canvas</span>

@@ -66,15 +66,15 @@ export const PeerRadar: React.FC<PeerRadarProps> = ({ users, camera }) => {
               className="w-4 h-4 flex items-center justify-center transition-transform"
               style={{ transform: `rotate(${angleDeg}deg)` }}
             >
-              <svg className="w-4 h-4 drop-shadow-md" viewBox="0 0 24 24" fill={user.color || '#D4AF37'}>
+              <svg className="w-4 h-4 drop-shadow-md" viewBox="0 0 24 24" fill={user.color || '#0d99ff'}>
                 <path d="M12 2L22 22L12 17L2 22L12 2Z" />
               </svg>
             </div>
 
             {/* Peer Username Badge */}
             <span
-              className="px-2 py-0.5 rounded-full text-[10px] font-bold text-slate-950 shadow-lg whitespace-nowrap opacity-90 border border-slate-950"
-              style={{ backgroundColor: user.color || '#D4AF37' }}
+              className="px-2 py-0.5 rounded-full text-[10px] font-bold text-on-surface shadow-lg whitespace-nowrap opacity-90 border border-on-surface"
+              style={{ backgroundColor: user.color || '#0d99ff' }}
             >
               {user.username}
             </span>

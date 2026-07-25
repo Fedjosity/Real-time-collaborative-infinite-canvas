@@ -73,7 +73,7 @@ export const JoinModal: React.FC<JoinModalProps> = ({
   return (
     <Modal isOpen={isOpen} onClose={onClose || (() => {})} title="Join Collaboration Room">
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-        <div className="text-sm text-slate-300">
+        <div className="text-sm text-on-surface-variant">
           Enter your name and pick an accent color for your live cursor & avatar.
           {roomId && (
             <div className="mt-2 text-xs font-mono text-indigo-400 bg-indigo-950/60 p-2 rounded-lg border border-indigo-800/40">
@@ -96,17 +96,17 @@ export const JoinModal: React.FC<JoinModalProps> = ({
 
         {/* Color Picker Grid */}
         <div className="flex flex-col gap-2">
-          <label className="text-xs font-medium text-slate-300 tracking-wide">
+          <label className="text-xs font-medium text-on-surface-variant tracking-wide">
             Your Cursor & Presence Color
           </label>
-          <div className="grid grid-cols-10 gap-2 p-2.5 bg-slate-950/60 rounded-xl border border-slate-800">
+          <div className="grid grid-cols-10 gap-2 p-2.5 bg-on-surface/60 rounded-xl border border-surface-variant">
             {USER_COLORS.map((color, idx) => (
               <button
                 key={`${color}-${idx}`}
                 type="button"
                 className={`w-6 h-6 rounded-full transition-all duration-150 cursor-pointer ${
                   selectedColor === color
-                    ? 'ring-2 ring-white ring-offset-2 ring-offset-slate-900 scale-110'
+                    ? 'ring-2 ring-white ring-offset-2 ring-offset-on-surface scale-110'
                     : 'hover:scale-105 opacity-80 hover:opacity-100'
                 }`}
                 style={{ backgroundColor: color }}
@@ -118,7 +118,7 @@ export const JoinModal: React.FC<JoinModalProps> = ({
         </div>
 
         {/* Submit Button */}
-        <div className="flex justify-end gap-3 pt-2 border-t border-slate-800">
+        <div className="flex justify-end gap-3 pt-2 border-t border-surface-variant">
           <Button type="submit" variant="primary" size="lg" className="w-full">
             🚀 Enter Canvas
           </Button>

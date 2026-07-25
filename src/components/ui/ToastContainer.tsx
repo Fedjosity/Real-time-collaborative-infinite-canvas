@@ -28,9 +28,9 @@ export const ToastContainer: React.FC = () => {
       case 'warning':
         return {
           icon: '⚠',
-          bg: 'bg-amber-950/90',
-          border: 'border-amber-500/40',
-          text: 'text-amber-300',
+          bg: 'bg-white/90',
+          border: 'border-primary/40',
+          text: 'text-on-primary-container',
         };
       case 'info':
       default:
@@ -54,11 +54,11 @@ export const ToastContainer: React.FC = () => {
           >
             <div className="flex items-center gap-2.5">
               <span className="font-bold text-sm">{style.icon}</span>
-              <span className="text-xs font-medium text-slate-100">{toast.message}</span>
+              <span className="text-xs font-medium text-surface">{toast.message}</span>
             </div>
             <button
               onClick={() => removeToast(toast.id)}
-              className="text-slate-400 hover:text-white p-0.5 rounded transition-colors cursor-pointer"
+              className="text-outline-variant hover:text-white p-0.5 rounded transition-colors cursor-pointer"
               aria-label="Dismiss toast"
             >
               ✕
