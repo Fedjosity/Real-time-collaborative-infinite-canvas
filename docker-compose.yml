@@ -1,6 +1,26 @@
-version: '3.8'
-
 services:
+  # Main CollabCanvas Web & Real-Time Server
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: collabcanvas-app
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/collabcanvas?schema=public
+      - REDIS_URL=redis://redis:6379
+      - UPLOAD_DIR=uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
   # PostgreSQL Database (Prisma ORM backend)
   postgres:
     image: postgres:16-alpine

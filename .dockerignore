@@ -1,0 +1,9 @@
+node_modules
+.next
+.git
+.pnpm-store
+build
+dist
+coverage
+uploads
+*.log
