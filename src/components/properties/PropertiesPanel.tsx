@@ -26,6 +26,8 @@ export function PropertiesPanel({
   const selectedObjectIds = useCanvasStore((state) => state.selectedObjectIds);
   const selectObject = useCanvasStore((state) => state.selectObject);
   const physicsEnabled = useCanvasStore((state) => state.physicsEnabled);
+  const camera = useCanvasStore((state) => state.camera);
+  const setCamera = useCanvasStore((state) => state.setCamera);
   const [currentPage, setCurrentPage] = useState(0);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -349,7 +351,26 @@ export function PropertiesPanel({
               return (
                 <div 
                   key={obj.id}
-                  onClick={() => selectObject(obj.id, false)}
+                  onClick={() => {
+                    selectObject(obj.id, false);
+                    
+                    // Center camera on object
+                    const cx = obj.x + (obj.width || 0) / 2;
+                    const cy = obj.y + (obj.height || 0) / 2;
+                    
+                    // Account for left toolbar (~70px) and right properties panel (~280px if not mobile)
+                    const panelOffset = isOpenMobile ? 0 : 280;
+                    const toolbarOffset = 70;
+                    
+                    const screenCenterX = (window.innerWidth - panelOffset + toolbarOffset) / 2;
+                    const screenCenterY = window.innerHeight / 2;
+
+                    setCamera({
+                      ...camera,
+                      x: screenCenterX - cx * camera.scale,
+                      y: screenCenterY - cy * camera.scale,
+                    });
+                  }}
                   className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors ${
                     isSelected ? 'bg-primary/10 border border-primary/30' : 'hover:bg-slate-50 border border-transparent'
                   }`}

@@ -97,34 +97,30 @@ export const TimeTravelBar: React.FC<TimeTravelBarProps> = ({
       <div className="flex items-center justify-between pt-1">
         <div className="flex items-center gap-2">
           {/* Step Backward */}
-          <Button
-            variant="secondary"
-            size="sm"
+          <button
             onClick={() => onSelectSnapshot(Math.max(0, currentIndex - 1))}
             disabled={currentIndex === 0}
+            className="flex items-center justify-center w-9 h-9 bg-white text-slate-700 border border-slate-200 rounded-xl hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition-all"
           >
             ⏮
-          </Button>
+          </button>
 
           {/* Play / Pause Toggle */}
-          <Button
-            variant="primary"
-            size="sm"
+          <button
             onClick={() => setIsPlaying(!isPlaying)}
-            className="px-5 font-bold"
+            className="flex items-center justify-center px-5 h-9 bg-[#0d99ff] hover:bg-[#0061a5] text-white font-bold rounded-xl shadow-md transition-all active:scale-[0.98]"
           >
             {isPlaying ? '⏸ Pause' : '▶ Play'}
-          </Button>
+          </button>
 
           {/* Step Forward */}
-          <Button
-            variant="secondary"
-            size="sm"
+          <button
             onClick={() => onSelectSnapshot(Math.min(snapshots.length - 1, currentIndex + 1))}
             disabled={currentIndex >= snapshots.length - 1}
+            className="flex items-center justify-center w-9 h-9 bg-white text-slate-700 border border-slate-200 rounded-xl hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition-all"
           >
             ⏭
-          </Button>
+          </button>
         </div>
 
         {/* Speed Selector */}

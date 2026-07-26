@@ -99,7 +99,11 @@ export default function RoomPage({ params }: RoomPageProps) {
         const stored = localStorage.getItem(STORAGE_KEYS.LOCAL_USER);
         const searchParams = new URLSearchParams(window.location.search);
         const isNewRoom = searchParams.get("new") === "1";
-        
+
+        if (isNewRoom) {
+          // Remove ?new=1 from the URL without reloading so it doesn't pop up again on refresh
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
         if (stored) {
           setLocalUser(JSON.parse(stored));
           if (isNewRoom) {

@@ -189,19 +189,21 @@ export function usePhysics({ objects, onUpdateObject, localUserId }: UsePhysicsO
 
         const speed = Math.sqrt(body.velocity.x * body.velocity.x + body.velocity.y * body.velocity.y);
 
+        let physicsUpdate = { ...targetObj.physics };
+
         // WAKE UP LOGIC: If it's resting but was pushed by a collision or force field, claim authority!
         if (!isAuthoritative && targetObj.physics?.state === 'resting' && speed > 0.05) {
           if (DEBUG_PHYSICS) console.log(`[Physics] Waking up ${id} (speed ${speed.toFixed(2)})`);
           
           localOverridesRef.current.set(id, { state: 'active', authority: currentUserId, expireAt: Date.now() + 2000 });
           
-          onUpdateObjectRef.current(id, {
-            physics: {
-              ...targetObj.physics,
-              state: 'active',
-              authority: currentUserId,
-            },
-          });
+          physicsUpdate = {
+            ...physicsUpdate,
+            state: 'active',
+            authority: currentUserId,
+          } as any;
+          
+          onUpdateObjectRef.current(id, { physics: physicsUpdate });
           isAuthoritative = true;
         }
 
@@ -233,11 +235,11 @@ export function usePhysics({ objects, onUpdateObject, localUserId }: UsePhysicsO
             y: newY,
             rotation: newRotation,
             physics: {
-              ...targetObj.physics,
+              ...physicsUpdate,
               state: 'resting',
               authority: null,
               velocity: { x: 0, y: 0 },
-            },
+            } as any,
           });
         } else if (targetObj.physics?.state !== 'dragging') {
           // Throttled network broadcast (20 Hz / every 50ms)
@@ -249,10 +251,10 @@ export function usePhysics({ objects, onUpdateObject, localUserId }: UsePhysicsO
               y: newY,
               rotation: newRotation,
               physics: {
-                ...targetObj.physics,
+                ...physicsUpdate,
                 velocity: { x: body.velocity.x, y: body.velocity.y },
                 angularVelocity: body.angularVelocity,
-              },
+              } as any,
             });
           }
         }
@@ -294,8 +296,19 @@ export function usePhysics({ objects, onUpdateObject, localUserId }: UsePhysicsO
       Matter.Body.setStatic(body, false);
       
       // Convert velocity from px/second to px/tick (assuming 60fps)
-      const tickVelocity = { x: velocity.x / 60, y: velocity.y / 60 };
-      applyThrowImpulse(body, tickVelocity, 60, 1.2);
+      let vx = velocity.x / 60;
+      let vy = velocity.y / 60;
+      
+      // Cap maximum throw velocity to prevent clipping
+      const rawSpeed = Math.sqrt(vx * vx + vy * vy);
+      if (rawSpeed > 50) {
+        vx = (vx / rawSpeed) * 50;
+        vy = (vy / rawSpeed) * 50;
+      }
+      
+      // Set velocity DIRECTLY so that syncObjectToBody immediately sees speed > 0.1 
+      // before the next instance.step() runs!
+      Matter.Body.setVelocity(body, { x: vx, y: vy });
 
       localOverridesRef.current.set(id, { state: 'active', authority: currentUserId, expireAt: Date.now() + 2000 });
 
