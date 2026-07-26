@@ -23,7 +23,14 @@ export const TextObject: React.FC<TextObjectProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const editableRef = useRef<HTMLDivElement>(null);
 
-  // We rely purely on the DOM for actively typed content. State is removed here.
+  useEffect(() => {
+    if (editableRef.current) {
+      const newContent = data.content || 'Double-click to edit';
+      if (!isEditing && editableRef.current.innerHTML !== newContent) {
+        editableRef.current.innerHTML = newContent;
+      }
+    }
+  }, [data.content, isEditing]);
 
   const handleDoubleClick = () => {
     setIsEditing(true);
@@ -46,7 +53,7 @@ export const TextObject: React.FC<TextObjectProps> = ({
           ref={editableRef}
           contentEditable={isEditing}
           onBlur={handleBlur}
-          dangerouslySetInnerHTML={{ __html: data.content || 'Double-click to edit' }}
+          suppressContentEditableWarning
           style={{
             width: `${object.width}px`,
             height: `${object.height}px`,

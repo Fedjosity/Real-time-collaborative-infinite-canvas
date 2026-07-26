@@ -97,26 +97,15 @@ export function PropertiesPanel({
 
   const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!selectedObject) return;
-    
     const isText = selectedObject.type === "text";
-    
+
     if (isText) {
-      const selection = window.getSelection();
-      if (selection && selection.rangeCount > 0 && !selection.isCollapsed) {
-        document.execCommand('styleWithCSS', false, 'true');
-        document.execCommand('foreColor', false, e.target.value);
-        // Dispatch an input event to notify TextObject to update its state
-        if (selection.anchorNode && selection.anchorNode.parentElement) {
-           selection.anchorNode.parentElement.dispatchEvent(new Event('input', { bubbles: true }));
-        }
-      } else {
-        updateObject(selectedObject.id, {
-          data: {
-            ...selectedObject.data,
-            color: e.target.value,
-          },
-        });
-      }
+      updateObject(selectedObject.id, {
+        data: {
+          ...selectedObject.data,
+          color: e.target.value,
+        },
+      });
     } else {
       updateObject(selectedObject.id, {
         data: {
@@ -141,6 +130,18 @@ export function PropertiesPanel({
     const isText = selectedObject.type === "text";
     // @ts-ignore
     return isText ? (selectedObject.data.color || "#E2E8F0") : selectedObject.data.fill;
+  };
+
+  const handleFontSizeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const size = parseInt(e.target.value) || 18;
+    if (selectedObject && selectedObject.type === 'text') {
+      updateObject(selectedObject.id, {
+        data: {
+          ...selectedObject.data,
+          fontSize: size,
+        },
+      });
+    }
   };
 
   const getLayerName = () => {
@@ -250,6 +251,15 @@ export function PropertiesPanel({
                     >
                       U
                     </button>
+                    <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden bg-white h-8 ml-2">
+                      <input 
+                        type="number"
+                        className="w-12 h-full text-center text-sm border-none focus:outline-none"
+                        value={(selectedObject.data as any).fontSize || 18}
+                        onChange={handleFontSizeChange}
+                      />
+                      <span className="text-xs text-slate-400 pr-2 pointer-events-none">px</span>
+                    </div>
                   </div>
                 </div>
               )}
