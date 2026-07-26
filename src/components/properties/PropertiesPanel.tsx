@@ -9,6 +9,8 @@ interface PropertiesPanelProps {
   setIsOpenMobile: (isOpen: boolean) => void;
   assets?: string[];
   addAsset?: (url: string) => void;
+  removeAsset?: (index: number) => void;
+  onAssetClick?: (url: string) => void;
 }
 
 export function PropertiesPanel({
@@ -18,8 +20,11 @@ export function PropertiesPanel({
   setIsOpenMobile,
   assets = [],
   addAsset,
+  removeAsset,
+  onAssetClick,
 }: PropertiesPanelProps) {
   const selectedObjectIds = useCanvasStore((state) => state.selectedObjectIds);
+  const selectObject = useCanvasStore((state) => state.selectObject);
   const [currentPage, setCurrentPage] = useState(0);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -44,6 +49,32 @@ export function PropertiesPanel({
   const handleDragStart = (e: React.DragEvent, src: string) => {
     e.dataTransfer.setData('text/plain', src);
     e.dataTransfer.effectAllowed = 'copy';
+  };
+
+  const moveLayerUp = (index: number) => {
+    if (index >= objects.length - 1) return; // Already on top
+    const currentObj = objects[index];
+    const nextObj = objects[index + 1];
+    if (!currentObj || !nextObj) return;
+    
+    const currentZ = currentObj.zIndex || index;
+    const nextZ = nextObj.zIndex || index + 1;
+    
+    updateObject(currentObj.id, { zIndex: nextZ });
+    updateObject(nextObj.id, { zIndex: currentZ });
+  };
+
+  const moveLayerDown = (index: number) => {
+    if (index <= 0) return; // Already on bottom
+    const currentObj = objects[index];
+    const prevObj = objects[index - 1];
+    if (!currentObj || !prevObj) return;
+    
+    const currentZ = currentObj.zIndex || index;
+    const prevZ = prevObj.zIndex || index - 1;
+    
+    updateObject(currentObj.id, { zIndex: prevZ });
+    updateObject(prevObj.id, { zIndex: currentZ });
   };
 
   // For now, we only show properties if exactly ONE object is selected
@@ -90,7 +121,7 @@ export function PropertiesPanel({
       updateObject(selectedObject.id, {
         data: {
           ...selectedObject.data,
-          backgroundColor: e.target.value,
+          fill: e.target.value,
         },
       });
     }
@@ -109,7 +140,7 @@ export function PropertiesPanel({
     if (!selectedObject) return "#ffffff";
     const isText = selectedObject.type === "text";
     // @ts-ignore
-    return isText ? (selectedObject.data.color || "#E2E8F0") : selectedObject.data.backgroundColor;
+    return isText ? (selectedObject.data.color || "#E2E8F0") : selectedObject.data.fill;
   };
 
   const getLayerName = () => {
@@ -231,6 +262,61 @@ export function PropertiesPanel({
           )}
         </div>
 
+        {/* Layers Section */}
+        <div className="p-4 border-b border-outline-variant/30 flex flex-col max-h-[300px] overflow-y-auto">
+          <h4 className="font-bold text-xs text-slate-500 uppercase tracking-wider mb-4">
+            Layers
+          </h4>
+          <div className="flex flex-col gap-1">
+            {/* Render in reverse so top layers are at the top of the list */}
+            {[...objects].reverse().map((obj, reversedIndex) => {
+              const originalIndex = objects.length - 1 - reversedIndex;
+              const isSelected = selectedObjectIds.includes(obj.id);
+              let icon = "interests";
+              if (obj.type === "text") icon = "title";
+              if (obj.type === "image") icon = "image";
+              
+              return (
+                <div 
+                  key={obj.id}
+                  onClick={() => selectObject(obj.id, false)}
+                  className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors ${
+                    isSelected ? 'bg-primary/10 border border-primary/30' : 'hover:bg-slate-50 border border-transparent'
+                  }`}
+                >
+                  <div className="flex items-center gap-2 overflow-hidden">
+                    <span className="material-symbols-outlined text-[16px] text-slate-400">
+                      {icon}
+                    </span>
+                    <span className="text-xs text-slate-700 truncate">
+                      {obj.type === 'text' ? (obj.data as any).content?.replace(/<[^>]+>/g, '').substring(0, 15) || 'Text' : obj.type.charAt(0).toUpperCase() + obj.type.slice(1)}
+                    </span>
+                  </div>
+                  <div className="flex gap-1">
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); moveLayerUp(originalIndex); }}
+                      disabled={originalIndex === objects.length - 1}
+                      className="p-1 rounded hover:bg-slate-200 disabled:opacity-30 disabled:hover:bg-transparent text-slate-500"
+                    >
+                      <span className="material-symbols-outlined text-[14px]">arrow_upward</span>
+                    </button>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); moveLayerDown(originalIndex); }}
+                      disabled={originalIndex === 0}
+                      className="p-1 rounded hover:bg-slate-200 disabled:opacity-30 disabled:hover:bg-transparent text-slate-500"
+                    >
+                      <span className="material-symbols-outlined text-[14px]">arrow_downward</span>
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+            {objects.length === 0 && (
+              <div className="text-xs text-slate-400 text-center py-2">No layers yet</div>
+            )}
+          </div>
+        </div>
+
         {/* Assets Section */}
         <div className="p-4 flex-1 overflow-y-auto border-b border-outline-variant/30 flex flex-col">
           <div className="flex items-center justify-between mb-4">
@@ -255,20 +341,38 @@ export function PropertiesPanel({
             </div>
           </div>
           <div className="grid grid-cols-2 gap-2">
-            {currentAssets.map((src, i) => (
-              <div 
-                key={i} 
-                draggable
-                onDragStart={(e) => handleDragStart(e, src)}
-                className="aspect-square bg-slate-50 rounded-lg border border-slate-200 overflow-hidden relative group cursor-grab hover:border-primary/50 transition-colors"
-              >
-                <img 
-                  className="object-cover w-full h-full opacity-80 group-hover:opacity-100 transition-opacity" 
-                  src={src} 
-                  alt={`Asset ${i}`} 
-                />
-              </div>
-            ))}
+            {currentAssets.map((src, i) => {
+              const actualIndex = currentPage * itemsPerPage + i;
+              return (
+                <div 
+                  key={actualIndex} 
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, src)}
+                  onClick={() => onAssetClick && onAssetClick(src)}
+                  className="aspect-square bg-slate-50 rounded-lg border border-slate-200 overflow-hidden relative group cursor-pointer hover:border-primary/50 transition-colors"
+                >
+                  <img 
+                    className="object-cover w-full h-full opacity-80 group-hover:opacity-100 transition-opacity" 
+                    src={src} 
+                    alt={`Asset ${actualIndex}`} 
+                  />
+                  {removeAsset && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeAsset(actualIndex);
+                      }}
+                      className="absolute top-1 right-1 p-1 bg-white/90 rounded text-red-500 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50"
+                    >
+                      <span className="material-symbols-outlined text-[14px]">delete</span>
+                    </button>
+                  )}
+                  <div className="absolute inset-x-0 bottom-0 p-1 bg-black/50 text-white text-[10px] text-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                    Click or Drag
+                  </div>
+                </div>
+              );
+            })}
             <div 
               onClick={() => fileInputRef.current?.click()}
               className="aspect-square bg-slate-50 rounded-lg border border-slate-200 border-dashed overflow-hidden flex items-center justify-center cursor-pointer hover:bg-primary/5 hover:border-primary/30 transition-colors text-slate-400 hover:text-primary"

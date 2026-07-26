@@ -106,7 +106,7 @@ export default function RoomPage({ params }: RoomPageProps) {
   }, []);
 
   // Yjs Real-Time CRDT Sync hook
-  const { objects, assets, awareness, addObject, updateObject, deleteObject, undo, redo, addAsset } = useYjs(
+  const { objects, assets, awareness, addObject, updateObject, deleteObject, undo, redo, addAsset, removeAsset } = useYjs(
     roomId,
     localUser,
   );
@@ -114,10 +114,11 @@ export default function RoomPage({ params }: RoomPageProps) {
   // Handle keyboard shortcuts (Delete/Backspace/Undo/Redo)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't trigger canvas shortcuts if typing in an input
+      // Don't trigger canvas shortcuts if typing in an input or contentEditable
       if (
         e.target instanceof HTMLInputElement ||
-        e.target instanceof HTMLTextAreaElement
+        e.target instanceof HTMLTextAreaElement ||
+        (e.target as HTMLElement).isContentEditable
       ) {
         return;
       }
@@ -394,7 +395,12 @@ export default function RoomPage({ params }: RoomPageProps) {
             const rect = e.currentTarget.getBoundingClientRect();
             const x = (e.clientX - rect.left - camera.x) / camera.scale;
             const y = (e.clientY - rect.top - camera.y) / camera.scale;
-            addObject('image', { x, y }, { src, alt: 'Dropped Asset' });
+            
+            const img = new window.Image();
+            img.onload = () => {
+              addObject('image', { x, y }, { src, alt: 'Dropped Asset', width: img.naturalWidth, height: img.naturalHeight });
+            };
+            img.src = src;
           }
         }}
       >
@@ -479,6 +485,16 @@ export default function RoomPage({ params }: RoomPageProps) {
           setIsOpenMobile={setIsPropertiesOpen}
           assets={assets}
           addAsset={addAsset}
+          removeAsset={removeAsset}
+          onAssetClick={(src) => {
+            const x = (window.innerWidth / 2 - camera.x) / camera.scale;
+            const y = (window.innerHeight / 2 - camera.y) / camera.scale;
+            const img = new window.Image();
+            img.onload = () => {
+              addObject('image', { x, y }, { src, alt: 'Added Asset', width: img.naturalWidth, height: img.naturalHeight });
+            };
+            img.src = src;
+          }}
         />
       </div>
 

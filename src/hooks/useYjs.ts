@@ -67,9 +67,10 @@ export function useYjs(roomId: string, localUser: LocalUser | null) {
 
     setProvider(wsProvider);
 
-    // Sync objects Y.Map to local React state
     const handleObjectsChange = () => {
       const allObjects = Array.from(objectsMap.values());
+      // Sort ascending so bottom layers are first (rendered back-to-front in Konva)
+      allObjects.sort((a, b) => (a.zIndex || 0) - (b.zIndex || 0));
       setObjects(allObjects);
     };
 
@@ -145,8 +146,8 @@ export function useYjs(roomId: string, localUser: LocalUser | null) {
           break;
         case 'image':
           objectData = { src: extraData.src || '', alt: extraData.alt || '' };
-          width = 300;
-          height = 220;
+          width = (extraData.width as number) || 300;
+          height = (extraData.height as number) || 220;
           break;
         case 'audio':
           objectData = {
@@ -229,6 +230,10 @@ export function useYjs(roomId: string, localUser: LocalUser | null) {
     assetsArrayRef.current?.push([assetUrl]);
   }, []);
 
+  const removeAsset = useCallback((index: number) => {
+    assetsArrayRef.current?.delete(index, 1);
+  }, []);
+
   return {
     doc: docRef.current,
     objects,
@@ -243,5 +248,6 @@ export function useYjs(roomId: string, localUser: LocalUser | null) {
     undo,
     redo,
     addAsset,
+    removeAsset,
   };
 }
