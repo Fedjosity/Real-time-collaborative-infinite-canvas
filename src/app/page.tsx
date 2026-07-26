@@ -91,24 +91,24 @@ export default function LandingPage() {
           {/* Background Decorative Element */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden">
             <div className="absolute -top-24 -left-24 w-96 h-96 bg-[#0061a5]/5 blur-[120px] rounded-full"></div>
-            <div className="absolute bottom-0 right-0 w-full h-full opacity-30">
+            <div className="absolute inset-0 w-full h-full opacity-100">
               <div
-                className="absolute top-[20%] left-[15%] flex items-center gap-2 px-3 py-1 bg-secondary rounded-full shadow-lg text-white text-xs animate-bounce"
+                className="absolute top-[20%] left-[15%] flex items-center gap-2 px-3 py-1 bg-secondary rounded-full shadow-xl text-white text-xs animate-bounce"
                 style={{ animationDuration: "3s" }}
               >
                 <span className="material-symbols-outlined text-[16px]">
                   near_me
                 </span>
-                <span>Sarah (Lead Architect)</span>
+                <span className="font-medium">Sarah (Lead Architect)</span>
               </div>
               <div
-                className="absolute bottom-[30%] right-[20%] flex items-center gap-2 px-3 py-1 bg-[#6d43c6] rounded-full shadow-lg text-white text-xs animate-bounce"
+                className="absolute bottom-[20%] right-[20%] flex items-center gap-2 px-3 py-1 bg-[#6d43c6] rounded-full shadow-xl text-white text-xs animate-bounce"
                 style={{ animationDuration: "4s" }}
               >
                 <span className="material-symbols-outlined text-[16px]">
                   near_me
                 </span>
-                <span>Marcus (Design Exec)</span>
+                <span className="font-medium">Marcus (Design Exec)</span>
               </div>
             </div>
           </div>
