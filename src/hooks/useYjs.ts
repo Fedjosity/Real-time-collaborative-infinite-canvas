@@ -39,6 +39,7 @@ export function useYjs(roomId: string, localUser: LocalUser | null) {
   const docRef = useRef<Y.Doc | null>(null);
   const objectsMapRef = useRef<Y.Map<CanvasObject> | null>(null);
   const zIndexArrayRef = useRef<Y.Array<string> | null>(null);
+  const undoManagerRef = useRef<Y.UndoManager | null>(null);
 
   const setConnectionStatus = useRoomStore((state) => state.setConnectionStatus);
   const physicsEnabled = useCanvasStore((state) => state.physicsEnabled);
@@ -52,6 +53,7 @@ export function useYjs(roomId: string, localUser: LocalUser | null) {
     docRef.current = doc;
     objectsMapRef.current = objectsMap;
     zIndexArrayRef.current = zIndexArray;
+    undoManagerRef.current = new Y.UndoManager(objectsMap);
 
     const { wsProvider, destroy } = createYjsProviders({
       roomId,
@@ -84,6 +86,7 @@ export function useYjs(roomId: string, localUser: LocalUser | null) {
     return () => {
       objectsMap.unobserve(handleObjectsChange);
       roomMetaMap.unobserve(handleMetaChange);
+      undoManagerRef.current?.destroy();
       destroy();
     };
   }, [roomId, setConnectionStatus, setPhysicsEnabled]);
@@ -203,6 +206,14 @@ export function useYjs(roomId: string, localUser: LocalUser | null) {
     map.delete(id);
   }, []);
 
+  const undo = useCallback(() => {
+    undoManagerRef.current?.undo();
+  }, []);
+
+  const redo = useCallback(() => {
+    undoManagerRef.current?.redo();
+  }, []);
+
   return {
     doc: docRef.current,
     objects,
@@ -213,5 +224,7 @@ export function useYjs(roomId: string, localUser: LocalUser | null) {
     updateObject,
     deleteObject,
     setRoomPhysicsMeta,
+    undo,
+    redo,
   };
 }

@@ -70,6 +70,7 @@ export function createYjsProviders({
     console.log('[Yjs WS] Browser network offline detected');
     if (onStatusChange) onStatusChange('disconnected');
     try {
+      useRoomStore.getState().setIsOnline(false);
       useRoomStore.getState().setConnectionStatus('disconnected');
     } catch {}
   };
@@ -78,6 +79,7 @@ export function createYjsProviders({
     console.log('[Yjs WS] Browser network online detected');
     if (onStatusChange) {
       onStatusChange(wsProvider.wsconnected ? 'connected' : 'connecting');
+      useRoomStore.getState().setIsOnline(true);
       useRoomStore.getState().setConnectionStatus(wsProvider.wsconnected ? 'connected' : 'connecting');
     }
   };
@@ -91,6 +93,9 @@ export function createYjsProviders({
   wsProvider.on('status', (event: { status: 'connecting' | 'connected' | 'disconnected' }) => {
     console.log(`[Yjs WS] Status change: ${event.status}`);
     const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
+    
+    // If the browser knows we are offline, FORCE disconnected status.
+    // Localhost WebSockets can stay "connected" even if WiFi is off!
     const targetStatus: ConnectionStatus = (!isOnline || event.status === 'disconnected')
       ? 'disconnected'
       : event.status === 'connected'

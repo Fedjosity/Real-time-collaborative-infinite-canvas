@@ -272,19 +272,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({ onAddObject }) => {
           )}
         </div>
 
-        {/* Eraser Tool */}
-        <button
-          onClick={() => setActiveTool('eraser')}
-          className={`group relative flex items-center justify-center p-3 rounded-full active:scale-95 transition-all ${
-            activeTool === 'eraser'
-              ? 'bg-primary-container text-white shadow-md'
-              : 'text-on-surface-variant hover:bg-surface-container-high'
-          }`}
-          title="Eraser"
-        >
-          <CleaningServicesIcon fontSize="small" />
-        </button>
-
         {/* Physics Toggle */}
         <button
           onClick={togglePhysics}

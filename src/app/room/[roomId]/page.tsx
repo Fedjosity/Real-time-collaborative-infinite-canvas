@@ -50,6 +50,11 @@ export default function RoomPage({ params }: RoomPageProps) {
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [showShortcutsModal, setShowShortcutsModal] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Time-Travel Replay State
   const [isReplaying, setIsReplaying] = useState(false);
@@ -68,6 +73,7 @@ export default function RoomPage({ params }: RoomPageProps) {
   const strokeColor = useCanvasStore((state) => state.strokeColor);
 
   const connectionStatus = useRoomStore((state) => state.connectionStatus);
+  const isOnline = useRoomStore((state) => state.isOnline);
   const connectedUsers = useRoomStore((state) => state.connectedUsers);
   const addToast = useUIStore((state) => state.addToast);
   const showMiniMap = useUIStore((state) => state.showMiniMap);
@@ -98,30 +104,46 @@ export default function RoomPage({ params }: RoomPageProps) {
   }, []);
 
   // Yjs Real-Time CRDT Sync hook
-  const { objects, awareness, addObject, updateObject, deleteObject } = useYjs(
+  const { objects, awareness, addObject, updateObject, deleteObject, undo, redo } = useYjs(
     roomId,
     localUser,
   );
 
-  // Handle keyboard shortcuts (Delete/Backspace)
+  // Handle keyboard shortcuts (Delete/Backspace/Undo/Redo)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger canvas shortcuts if typing in an input
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement
+      ) {
+        return;
+      }
+
+      // Undo (Ctrl+Z or Cmd+Z) / Redo (Ctrl+Shift+Z or Cmd+Shift+Z)
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
+        e.preventDefault();
+        if (e.shiftKey) {
+          redo();
+        } else {
+          undo();
+        }
+        return;
+      }
+
+      // Delete selected objects
       if (
         (e.key === "Delete" || e.key === "Backspace") &&
         selectedObjectIds.length > 0
       ) {
-        if (
-          e.target instanceof HTMLInputElement ||
-          e.target instanceof HTMLTextAreaElement
-        )
-          return;
         selectedObjectIds.forEach((id) => deleteObject(id));
         useCanvasStore.getState().clearSelection();
       }
     };
+    
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedObjectIds, deleteObject]);
+  }, [selectedObjectIds, deleteObject, undo, redo]);
 
   // Record snapshots whenever objects change
   useEffect(() => {
@@ -226,7 +248,11 @@ export default function RoomPage({ params }: RoomPageProps) {
 
           {/* Connection Status Indicator */}
           <div className="flex items-center gap-1.5 px-2.5 py-1 bg-surface-container rounded-full border border-outline-variant/30 text-xs">
-            {connectionStatus === "connected" ? (
+            {!isMounted ? (
+              <span className="hidden md:inline font-medium text-slate-500">
+                connecting
+              </span>
+            ) : connectionStatus === "connected" && isOnline ? (
               <>
                 <CloudDoneIcon
                   className="text-emerald-500"
@@ -240,7 +266,7 @@ export default function RoomPage({ params }: RoomPageProps) {
               <>
                 <CloudOffIcon className="text-amber-500" fontSize="inherit" />
                 <span className="hidden md:inline font-medium text-amber-600">
-                  {connectionStatus}
+                  {!isOnline ? "Offline" : connectionStatus}
                 </span>
               </>
             )}
