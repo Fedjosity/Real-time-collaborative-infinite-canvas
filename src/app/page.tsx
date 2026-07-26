@@ -34,14 +34,14 @@ export default function LandingPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        router.push(`/room/${data.room.id}`);
+        router.push(`/room/${data.room.id}?new=1`);
       } else {
         const fallbackId = generateRoomId();
-        router.push(`/room/${fallbackId}`);
+        router.push(`/room/${fallbackId}?new=1`);
       }
     } catch {
       const fallbackId = generateRoomId();
-      router.push(`/room/${fallbackId}`);
+      router.push(`/room/${fallbackId}?new=1`);
     } finally {
       setIsCreating(false);
     }

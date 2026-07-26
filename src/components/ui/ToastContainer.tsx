@@ -14,31 +14,31 @@ export const ToastContainer: React.FC = () => {
       case 'success':
         return {
           icon: '✓',
-          bg: 'bg-emerald-950/90',
-          border: 'border-emerald-500/40',
-          text: 'text-emerald-300',
+          bg: 'bg-emerald-50',
+          border: 'border-emerald-200',
+          text: 'text-emerald-800',
         };
       case 'error':
         return {
           icon: '✕',
-          bg: 'bg-rose-950/90',
-          border: 'border-rose-500/40',
-          text: 'text-rose-300',
+          bg: 'bg-rose-50',
+          border: 'border-rose-200',
+          text: 'text-rose-800',
         };
       case 'warning':
         return {
           icon: '⚠',
-          bg: 'bg-white/90',
-          border: 'border-primary/40',
-          text: 'text-on-primary-container',
+          bg: 'bg-amber-50',
+          border: 'border-amber-200',
+          text: 'text-amber-800',
         };
       case 'info':
       default:
         return {
           icon: 'ℹ',
-          bg: 'bg-indigo-950/90',
-          border: 'border-indigo-500/40',
-          text: 'text-indigo-300',
+          bg: 'bg-primary/5',
+          border: 'border-primary/20',
+          text: 'text-primary',
         };
     }
   };
@@ -50,11 +50,11 @@ export const ToastContainer: React.FC = () => {
         return (
           <div
             key={toast.id}
-            className={`flex items-center justify-between gap-3 px-4 py-3 rounded-xl glass-panel ${style.bg} ${style.border} ${style.text} shadow-2xl border transition-all duration-200 animate-in slide-in-from-right-5`}
+            className={`flex items-center justify-between gap-3 px-4 py-3 rounded-xl ${style.bg} ${style.border} ${style.text} shadow-xl border transition-all duration-200 animate-in slide-in-from-right-5`}
           >
             <div className="flex items-center gap-2.5">
               <span className="font-bold text-sm">{style.icon}</span>
-              <span className="text-xs font-medium text-surface">{toast.message}</span>
+              <span className="text-xs font-medium">{toast.message}</span>
             </div>
             <button
               onClick={() => removeToast(toast.id)}

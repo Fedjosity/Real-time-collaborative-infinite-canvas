@@ -14,12 +14,16 @@
 import Matter from 'matter-js';
 import type { CanvasObject } from '@/types/canvas';
 
+export interface PhysicsEngineOptions {
+  onCollisionStart?: (bodyAId: string, bodyBId: string) => void;
+}
+
 export interface PhysicsEngineInstance {
   engine: Matter.Engine;
   world: Matter.World;
   bodiesMap: Map<string, Matter.Body>;
   step: (deltaTime?: number) => void;
-  syncObjectToBody: (object: CanvasObject) => Matter.Body;
+  syncObjectToBody: (object: CanvasObject, localUserId?: string | null) => Matter.Body;
   removeBody: (objectId: string) => void;
   clear: () => void;
 }
@@ -27,31 +31,52 @@ export interface PhysicsEngineInstance {
 /**
  * Initialize a custom Matter.js physics engine instance for a room canvas.
  */
-export function createPhysicsEngine(): PhysicsEngineInstance {
+export function createPhysicsEngine(options: PhysicsEngineOptions = {}): PhysicsEngineInstance {
   const engine = Matter.Engine.create({
     gravity: { x: 0, y: 0, scale: 0 },
-    enableSleeping: true,
+    enableSleeping: false,
   });
 
   const world = engine.world;
   const bodiesMap = new Map<string, Matter.Body>();
 
+  if (options.onCollisionStart) {
+    Matter.Events.on(engine, 'collisionStart', (event) => {
+      for (const pair of event.pairs) {
+        if (pair.bodyA.label && pair.bodyB.label && options.onCollisionStart) {
+          options.onCollisionStart(pair.bodyA.label, pair.bodyB.label);
+        }
+      }
+    });
+  }
+
   /**
    * Sync a CanvasObject into a Matter.js Body representation in the physics world.
    */
-  const syncObjectToBody = (object: CanvasObject): Matter.Body => {
+  const syncObjectToBody = (object: CanvasObject, localUserId?: string | null): Matter.Body => {
     let body = bodiesMap.get(object.id);
 
     // Compute center position for Matter.js (Matter origins are centered)
     const centerX = object.x + object.width / 2;
     const centerY = object.y + object.height / 2;
+    const frictionAir = object.physics?.frictionAir ?? 0.02;
+    const restitution = object.physics?.restitution ?? 0.6;
+    const friction = object.physics?.friction ?? 0.1;
+    const isPinned = object.physics?.isStatic ?? false;
+    const density = 0.001;
+
+    // A body is actively simulated as dynamic ONLY if this client is the temporary authority
+    const isActiveOrDragging = object.physics?.state === 'active' || object.physics?.state === 'dragging';
+    const isAuthoritative = isActiveOrDragging && object.physics?.authority === localUserId;
+    const isOwnedByOther = isActiveOrDragging && !isAuthoritative;
+    
+    // Static if explicitly pinned, OR if another client is actively simulating it (so we don't fight their network updates)
+    // If it's 'resting', it is dynamic (isStatic = false) so it can receive impulses from collisions/force fields!
+    const shouldBeStatic = isPinned || isOwnedByOther;
 
     if (!body) {
       // Create new rigid body based on shape type
       const shapeType = (object.data as any)?.shapeType || 'rectangle';
-      const frictionAir = object.physics?.friction ?? 0.05;
-      const restitution = object.physics?.restitution ?? 0.8;
-      const density = 0.001;
 
       if (object.type === 'shape' && shapeType === 'circle') {
         const radius = Math.max(10, Math.min(object.width, object.height) / 2);
@@ -59,7 +84,9 @@ export function createPhysicsEngine(): PhysicsEngineInstance {
           label: object.id,
           frictionAir,
           restitution,
+          friction,
           density,
+          isStatic: shouldBeStatic,
         });
       } else {
         body = Matter.Bodies.rectangle(
@@ -71,7 +98,9 @@ export function createPhysicsEngine(): PhysicsEngineInstance {
             label: object.id,
             frictionAir,
             restitution,
+            friction,
             density,
+            isStatic: shouldBeStatic,
           }
         );
       }
@@ -79,14 +108,31 @@ export function createPhysicsEngine(): PhysicsEngineInstance {
       bodiesMap.set(object.id, body);
       Matter.Composite.add(world, body);
     } else {
-      // Update position if body was moved externally
+      // Ensure dynamic/static state and material properties stay in sync
+      if (body.isStatic !== shouldBeStatic) {
+        Matter.Body.setStatic(body, shouldBeStatic);
+      }
+      body.restitution = restitution;
+      body.frictionAir = frictionAir;
+      body.friction = friction;
+
+      // Update position from Yjs if we do NOT own this body (it is resting or owned by another client)
+      // or if it was dragged externally while at rest. If the user is actively dragging it, FORCE update.
       const currentPos = body.position;
       const dx = Math.abs(currentPos.x - centerX);
       const dy = Math.abs(currentPos.y - centerY);
+      const speed = Math.sqrt(body.velocity.x * body.velocity.x + body.velocity.y * body.velocity.y);
 
-      // Only update body position if offset is significant
-      if (dx > 2 || dy > 2) {
-        Matter.Body.setPosition(body, { x: centerX, y: centerY });
+      const isDragging = object.physics?.state === 'dragging';
+
+      if (!isAuthoritative || isDragging || (speed < 0.1 && (dx > 2 || dy > 2))) {
+        if (dx > 1 || dy > 1 || isDragging) {
+          Matter.Body.setPosition(body, { x: centerX, y: centerY });
+          // ALWAYS reset velocity when we teleport, otherwise Matter.js calculates
+          // a massive spurious velocity from (newPosition - positionPrev)
+          Matter.Body.setVelocity(body, { x: 0, y: 0 });
+          Matter.Body.setAngularVelocity(body, 0);
+        }
       }
     }
 

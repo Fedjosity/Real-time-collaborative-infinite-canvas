@@ -31,8 +31,7 @@ export type ForceType =
   | 'attract'    // Gravitational pull toward a point/object
   | 'repel'      // Push away from a point/object
   | 'wind'       // Constant directional force
-  | 'explosion'  // Radial impulse from a point
-  | 'vortex';    // Tangential force creating rotation
+  | 'explosion'; // Radial impulse from a point
 
 /**
  * A force to be applied to one or more physics bodies.

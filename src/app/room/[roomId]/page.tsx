@@ -73,6 +73,7 @@ export default function RoomPage({ params }: RoomPageProps) {
   const shapeType = useCanvasStore((state) => state.shapeType);
   const currentColor = useCanvasStore((state) => state.currentColor);
   const strokeColor = useCanvasStore((state) => state.strokeColor);
+  const creationForceType = useCanvasStore((state) => state.creationForceType);
 
   const connectionStatus = useRoomStore((state) => state.connectionStatus);
   const isOnline = useRoomStore((state) => state.isOnline);
@@ -91,12 +92,22 @@ export default function RoomPage({ params }: RoomPageProps) {
     }
   }, [setCamera]);
 
-  // Load identity from localStorage on mount
+  // Fetch or ask for User Display Name
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEYS.LOCAL_USER);
-    if (stored) {
+    if (typeof window !== "undefined") {
       try {
-        setLocalUser(JSON.parse(stored));
+        const stored = localStorage.getItem(STORAGE_KEYS.LOCAL_USER);
+        const searchParams = new URLSearchParams(window.location.search);
+        const isNewRoom = searchParams.get("new") === "1";
+        
+        if (stored) {
+          setLocalUser(JSON.parse(stored));
+          if (isNewRoom) {
+            setShowJoinModal(true);
+          }
+        } else {
+          setShowJoinModal(true);
+        }
       } catch (err) {
         setShowJoinModal(true);
       }
@@ -106,12 +117,12 @@ export default function RoomPage({ params }: RoomPageProps) {
   }, []);
 
   // Yjs Real-Time CRDT Sync hook
-  const { objects, assets, awareness, addObject, updateObject, deleteObject, undo, redo, addAsset, removeAsset } = useYjs(
+  const { objects, assets, awareness, addObject, updateObject, deleteObject, setRoomPhysicsMeta, undo, redo, addAsset, removeAsset } = useYjs(
     roomId,
     localUser,
   );
 
-  // Handle keyboard shortcuts (Delete/Backspace/Undo/Redo)
+  // Handle keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Don't trigger canvas shortcuts if typing in an input or contentEditable
@@ -161,9 +172,10 @@ export default function RoomPage({ params }: RoomPageProps) {
   const { remoteUsers, updateCursor } = useAwareness(awareness, localUser);
 
   // Matter.js 2D Physics Engine hook
-  usePhysics({
+  const { throwObject } = usePhysics({
     objects,
     onUpdateObject: (id, attrs) => updateObject(id, attrs),
+    localUserId: localUser?.deviceId || localUser?.username || "Guest",
   });
 
   // Handle stage pointer movement to broadcast cursor coordinates
@@ -198,7 +210,7 @@ export default function RoomPage({ params }: RoomPageProps) {
       y: worldCenter.y + staggerOffset,
     };
 
-    const newObj = addObject(type, spawnPos, { fill: currentColor, stroke: strokeColor, ...extraData });
+    const newObj = addObject(type, spawnPos, { fill: currentColor, stroke: strokeColor, physics: { forceType: creationForceType }, ...extraData });
     if (newObj?.id) selectObject(newObj.id);
   };
 
@@ -215,7 +227,7 @@ export default function RoomPage({ params }: RoomPageProps) {
       activeTool === "sticky"
     ) {
       const worldPos = screenToWorld(pointer, camera);
-      const newObj = addObject(activeTool, worldPos, { shapeType, fill: currentColor, stroke: strokeColor });
+      const newObj = addObject(activeTool, worldPos, { shapeType, fill: currentColor, stroke: strokeColor, physics: { forceType: creationForceType } });
       if (newObj?.id) selectObject(newObj.id);
       setActiveTool("select");
     }
@@ -245,7 +257,7 @@ export default function RoomPage({ params }: RoomPageProps) {
           <div className="h-6 w-px bg-outline-variant/50 hidden sm:block" />
 
           {/* Room ID Badge */}
-          <div className="bg-surface-container px-3 py-1 rounded-full text-primary font-bold text-xs md:text-sm">
+          <div className="hidden sm:block bg-surface-container px-3 py-1 rounded-full text-primary font-bold text-xs md:text-sm">
             Room: #{roomId}
           </div>
 
@@ -414,6 +426,8 @@ export default function RoomPage({ params }: RoomPageProps) {
           onSelectObject={(id, multi) => selectObject(id, multi)}
           onUpdateObject={(id, attrs) => updateObject(id, attrs)}
           onStageClick={handleStageClick}
+          onThrowObject={throwObject}
+          localUserId={localUser?.deviceId || localUser?.username || "Guest"}
         />
 
         {/* Live User Presence Cursors Overlay */}
@@ -445,7 +459,10 @@ export default function RoomPage({ params }: RoomPageProps) {
         )}
 
         {/* Responsive Creative Toolbar (Desktop left bar + Mobile bottom bar) */}
-        <Toolbar onAddObject={handleAddObjectFromToolbar} />
+        <Toolbar
+          onAddObject={handleAddObjectFromToolbar}
+          onTogglePhysics={() => setRoomPhysicsMeta(!useCanvasStore.getState().physicsEnabled)}
+        />
 
         {/* Zoom Controls (Bottom Left, horizontal pill next to toolbar) */}
         <div className="fixed bottom-8 left-24 md:left-28 z-40 flex">

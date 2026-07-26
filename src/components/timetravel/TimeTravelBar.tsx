@@ -46,7 +46,7 @@ export const TimeTravelBar: React.FC<TimeTravelBarProps> = ({
   const currentSnapshot = snapshots[currentIndex] || snapshots[snapshots.length - 1];
 
   return (
-    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40 w-full max-w-2xl p-5 bg-white backdrop-blur-xl border border-primary/20 shadow-2xl rounded-3xl flex flex-col gap-3">
+    <div className="fixed bottom-32 md:bottom-10 lg:bottom-12 left-1/2 -translate-x-1/2 z-[60] w-[95%] max-w-2xl p-4 md:p-5 bg-white/95 backdrop-blur-xl border border-primary/20 shadow-2xl rounded-3xl flex flex-col gap-3">
       {/* Top Controls Header */}
       <div className="flex items-center justify-between text-xs font-mono">
         <div className="flex items-center gap-2">

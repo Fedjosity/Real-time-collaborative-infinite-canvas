@@ -15,7 +15,7 @@
  */
 
 import { create } from 'zustand';
-import type { Camera, CanvasTool, ShapeType } from '@/types/canvas';
+import type { Camera, CanvasTool, ShapeType, ForceFieldType } from '@/types/canvas';
 
 export interface CanvasStoreState {
   /** Active tool in toolbar */
@@ -38,6 +38,8 @@ export interface CanvasStoreState {
   physicsEnabled: boolean;
   /** Rubber-band selection box in world coordinates */
   selectionBox: { x: number; y: number; width: number; height: number } | null;
+  /** Default force type applied to newly created objects */
+  creationForceType: ForceFieldType;
 
   // Actions
   setActiveTool: (tool: CanvasTool) => void;
@@ -55,6 +57,7 @@ export interface CanvasStoreState {
   setPhysicsEnabled: (enabled: boolean) => void;
   togglePhysics: () => void;
   setSelectionBox: (box: { x: number; y: number; width: number; height: number } | null) => void;
+  setCreationForceType: (force: ForceFieldType) => void;
   resetCanvasState: () => void;
 }
 
@@ -75,6 +78,7 @@ export const useCanvasStore = create<CanvasStoreState>((set) => ({
   fontSize: 18,
   physicsEnabled: false,
   selectionBox: null,
+  creationForceType: 'none',
 
   setActiveTool: (tool) => set({ activeTool: tool }),
 
@@ -145,6 +149,8 @@ export const useCanvasStore = create<CanvasStoreState>((set) => ({
     set((state) => ({ physicsEnabled: !state.physicsEnabled })),
 
   setSelectionBox: (box) => set({ selectionBox: box }),
+
+  setCreationForceType: (force) => set({ creationForceType: force }),
 
   resetCanvasState: () =>
     set({

@@ -39,7 +39,7 @@ export function exportCanvasToJson(objects: CanvasObject[], roomId?: string): st
  */
 export function exportCanvasToSvg(objects: CanvasObject[]): string {
   if (objects.length === 0) {
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600" style="background:#070709;"><text x="400" y="300" fill="#D4AF37" text-anchor="middle" font-family="sans-serif">Empty Canvas</text></svg>`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600" style="background:#ffffff;"><text x="400" y="300" fill="#1C1917" text-anchor="middle" font-family="sans-serif">Empty Canvas</text></svg>`;
   }
 
   // Calculate bounding box enclosing all objects
@@ -101,7 +101,7 @@ export function exportCanvasToSvg(objects: CanvasObject[]): string {
     }
   });
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" style="background:#070709;">\n${svgElements}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" style="background:#ffffff;">\n${svgElements}</svg>`;
 }
 
 /**
@@ -157,8 +157,8 @@ export function exportCanvasToPng(objects: CanvasObject[]): Promise<Blob> {
       return;
     }
 
-    // Fill dark obsidian background
-    ctx.fillStyle = '#070709';
+    // Fill background
+    ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, width, height);
 
     // Draw objects
@@ -266,8 +266,8 @@ export function exportCanvasToJpeg(objects: CanvasObject[], quality = 0.92): Pro
       return;
     }
 
-    // Fill solid dark obsidian background (required for JPEG without transparency)
-    ctx.fillStyle = '#070709';
+    // Fill solid white background (required for JPEG without transparency)
+    ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, width, height);
 
     // Draw objects

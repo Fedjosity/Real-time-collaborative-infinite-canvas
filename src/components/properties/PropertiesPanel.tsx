@@ -25,6 +25,7 @@ export function PropertiesPanel({
 }: PropertiesPanelProps) {
   const selectedObjectIds = useCanvasStore((state) => state.selectedObjectIds);
   const selectObject = useCanvasStore((state) => state.selectObject);
+  const physicsEnabled = useCanvasStore((state) => state.physicsEnabled);
   const [currentPage, setCurrentPage] = useState(0);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -142,6 +143,24 @@ export function PropertiesPanel({
         },
       });
     }
+  };
+
+  const handlePhysicsChange = (attrs: Partial<NonNullable<CanvasObject['physics']>>) => {
+    if (!selectedObject) return;
+    updateObject(selectedObject.id, {
+      physics: {
+        ...(selectedObject.physics || {
+          enabled: true,
+          mass: 1,
+          restitution: 0.6,
+          friction: 0.1,
+          frictionAir: 0.01,
+          isStatic: false,
+          forceType: 'none',
+        }),
+        ...attrs,
+      },
+    });
   };
 
   const getLayerName = () => {
@@ -263,6 +282,47 @@ export function PropertiesPanel({
                   </div>
                 </div>
               )}
+
+              {physicsEnabled && (
+                <div className="flex flex-col gap-1.5 mt-2">
+                  <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                    Force Field
+                  </label>
+                  <div className="flex bg-slate-100 rounded-lg p-1 border border-slate-200">
+                    <button
+                      onClick={() => handlePhysicsChange({ forceType: 'none' })}
+                      className={`flex-1 text-xs py-1.5 rounded-md font-medium transition-all ${
+                        selectedObject.physics?.forceType === 'none' || !selectedObject.physics?.forceType
+                          ? 'bg-white shadow text-slate-800'
+                          : 'text-slate-500 hover:text-slate-700'
+                      }`}
+                    >
+                      None
+                    </button>
+                    <button
+                      onClick={() => handlePhysicsChange({ forceType: 'attract' })}
+                      className={`flex-1 text-xs py-1.5 rounded-md font-medium transition-all ${
+                        selectedObject.physics?.forceType === 'attract'
+                          ? 'bg-white shadow text-slate-800'
+                          : 'text-slate-500 hover:text-slate-700'
+                      }`}
+                    >
+                      Attract
+                    </button>
+                    <button
+                      onClick={() => handlePhysicsChange({ forceType: 'repel' })}
+                      className={`flex-1 text-xs py-1.5 rounded-md font-medium transition-all ${
+                        selectedObject.physics?.forceType === 'repel'
+                          ? 'bg-white shadow text-slate-800'
+                          : 'text-slate-500 hover:text-slate-700'
+                      }`}
+                    >
+                      Repel
+                    </button>
+                  </div>
+                </div>
+              )}
+
             </div>
           ) : (
             <div className="py-8 text-center flex flex-col items-center justify-center gap-2 text-slate-400">

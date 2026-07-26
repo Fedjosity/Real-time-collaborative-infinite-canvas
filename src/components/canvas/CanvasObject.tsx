@@ -15,8 +15,10 @@ export interface CanvasObjectProps {
   isSelected: boolean;
   isDraggable?: boolean;
   onSelect: (id: string, multiSelect: boolean) => void;
-  onChange: (id: string, newAttrs: Partial<CanvasObject>) => void;
+  onChange: (id: string, attrs: Partial<CanvasObject>) => void;
   onContextMenu?: (e: Konva.KonvaEventObject<PointerEvent>, id: string) => void;
+  onThrowObject?: (id: string, velocity: { x: number; y: number }, position: { x: number; y: number }) => void;
+  localUserId?: string | null;
 }
 
 export const CanvasObjectItem: React.FC<CanvasObjectProps> = ({
@@ -26,9 +28,12 @@ export const CanvasObjectItem: React.FC<CanvasObjectProps> = ({
   onSelect,
   onChange,
   onContextMenu,
+  onThrowObject,
+  localUserId,
 }) => {
   const groupRef = useRef<Konva.Group | null>(null);
   const trRef = useRef<Konva.Transformer | null>(null);
+  const dragHistoryRef = useRef<{ x: number; y: number; time: number }[]>([]);
 
   // Attach Konva Transformer handles when selected
   useEffect(() => {
@@ -42,15 +47,70 @@ export const CanvasObjectItem: React.FC<CanvasObjectProps> = ({
     onSelect(object.id, e.evt.shiftKey || e.evt.ctrlKey || e.evt.metaKey);
   };
 
+  const handleDragStart = (e: Konva.KonvaEventObject<DragEvent>) => {
+    dragHistoryRef.current = [{ x: e.target.x(), y: e.target.y(), time: performance.now() }];
+    if (localUserId) {
+      onChange(object.id, {
+        physics: {
+          ...object.physics,
+          state: 'dragging',
+          authority: localUserId,
+        },
+      });
+    }
+  };
+
   const handleDragMove = (e: Konva.KonvaEventObject<DragEvent>) => {
-    // Optional: Throttle real-time sync if needed, but for MVP local move is smooth natively.
+    const now = performance.now();
+    dragHistoryRef.current.push({ x: e.target.x(), y: e.target.y(), time: now });
+    if (dragHistoryRef.current.length > 5) {
+      dragHistoryRef.current.shift();
+    }
   };
 
   const handleDragEnd = (e: Konva.KonvaEventObject<DragEvent>) => {
-    onChange(object.id, {
-      x: e.target.x(),
-      y: e.target.y(),
-    });
+    const history = dragHistoryRef.current;
+    let vx = 0;
+    let vy = 0;
+
+    const first = history[0];
+    const last = history[history.length - 1];
+
+    if (first && last && history.length >= 2) {
+      const dt = (last.time - first.time) / 1000;
+      if (dt > 0.005) {
+        vx = (last.x - first.x) / dt;
+        vy = (last.y - first.y) / dt;
+        if (isNaN(vx)) vx = 0;
+        if (isNaN(vy)) vy = 0;
+      }
+    }
+
+    const speed = Math.sqrt(vx * vx + vy * vy);
+
+    if (onThrowObject && speed > 10 && localUserId) {
+      onChange(object.id, {
+        x: e.target.x(),
+        y: e.target.y(),
+        physics: {
+          ...object.physics,
+          state: 'active',
+          authority: localUserId,
+        },
+      });
+      onThrowObject(object.id, { x: vx, y: vy }, { x: e.target.x(), y: e.target.y() });
+    } else {
+      onChange(object.id, {
+        x: e.target.x(),
+        y: e.target.y(),
+        physics: {
+          ...object.physics,
+          state: 'resting',
+          authority: null,
+          velocity: { x: 0, y: 0 },
+        },
+      });
+    }
   };
 
   const handleTransformEnd = () => {
@@ -125,6 +185,7 @@ export const CanvasObjectItem: React.FC<CanvasObjectProps> = ({
         height={object.height}
         rotation={object.rotation}
         draggable={isDraggable && !object.locked}
+        onDragStart={handleDragStart}
         onDragMove={handleDragMove}
         onDragEnd={handleDragEnd}
         onTransformEnd={handleTransformEnd}

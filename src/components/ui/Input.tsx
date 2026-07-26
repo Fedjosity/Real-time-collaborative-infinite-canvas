@@ -29,7 +29,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <input
             id={inputId}
             ref={ref}
-            className={`w-full h-11 bg-on-surface/90 text-surface placeholder-surface-bright0 text-sm rounded-xl border border-outline-variant/30 focus:border-primary-container focus:ring-1 focus:ring-primary-container/40 outline-none transition-all duration-150 ${
+            className={`w-full h-11 bg-white text-slate-800 placeholder-slate-400 text-sm rounded-xl border border-outline-variant/50 focus:border-primary focus:ring-1 focus:ring-primary/40 outline-none transition-all duration-150 ${
               icon ? 'pl-10 pr-3.5' : 'px-3.5'
             } ${error ? 'border-rose-500 focus:border-rose-500' : ''} ${className}`}
             {...props}

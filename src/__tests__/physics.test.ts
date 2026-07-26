@@ -76,8 +76,8 @@ describe('Matter.js Physics Engine', () => {
     const body = syncObjectToBody(mockObject);
     applyThrowImpulse(body, { x: 15, y: -10 });
 
-    expect(body.velocity.x).toBe(15);
-    expect(body.velocity.y).toBe(-10);
+    expect(body.velocity.x).toBe(18);
+    expect(body.velocity.y).toBe(-12);
   });
 
   it('calculates gravitational attraction force between bodies', () => {

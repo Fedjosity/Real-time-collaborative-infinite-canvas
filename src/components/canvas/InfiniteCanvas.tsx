@@ -16,6 +16,8 @@ export interface InfiniteCanvasProps {
   onUpdateObject?: (id: string, attrs: Partial<CanvasObject>) => void;
   children?: React.ReactNode;
   onStageClick?: (e: Konva.KonvaEventObject<any>) => void;
+  onThrowObject?: (id: string, velocity: { x: number; y: number }, position: { x: number; y: number }) => void;
+  localUserId?: string | null;
 }
 
 export const InfiniteCanvas: React.FC<InfiniteCanvasProps> = ({
@@ -25,6 +27,8 @@ export const InfiniteCanvas: React.FC<InfiniteCanvasProps> = ({
   onUpdateObject,
   children,
   onStageClick,
+  onThrowObject,
+  localUserId,
 }) => {
   const stageRef = useRef<Konva.Stage | null>(null);
   const [dimensions, setDimensions] = useState({ width: 1920, height: 1080 });
@@ -90,7 +94,10 @@ export const InfiniteCanvas: React.FC<InfiniteCanvasProps> = ({
   const isPanningActive = activeTool === 'pan' || isSpacePressed;
 
   return (
-    <div className="relative w-full h-full overflow-hidden bg-[#f8f9fa]">
+    <div
+      className="w-full h-full relative overflow-hidden select-none bg-surface"
+      onContextMenu={(e) => e.preventDefault()}
+    >
       <Stage
         ref={stageRef}
         width={dimensions.width}
@@ -138,6 +145,8 @@ export const InfiniteCanvas: React.FC<InfiniteCanvasProps> = ({
               isDraggable={activeTool === 'select'}
               onSelect={(id, multi) => onSelectObject && onSelectObject(id, multi)}
               onChange={(id, attrs) => onUpdateObject && onUpdateObject(id, attrs)}
+              onThrowObject={onThrowObject}
+              localUserId={localUserId}
             />
           ))}
           {children}

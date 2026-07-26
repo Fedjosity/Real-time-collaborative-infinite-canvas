@@ -120,40 +120,29 @@ export const ExportMenu: React.FC<ExportMenuProps> = ({
       </Button>
 
       {isOpen && (
-        <div className="absolute right-0 top-12 z-50 w-52 glass-panel p-1.5 bg-[#ffffff]/95 border border-outline-variant/30 shadow-2xl rounded-xl flex flex-col gap-1 text-xs">
-          {/* PNG Export */}
-          <button
-            onClick={handleExportPng}
-            className="flex items-center gap-2.5 px-3 py-2 text-slate-200 hover:text-on-primary-container hover:bg-surface-variant/60 rounded-lg transition-colors text-left cursor-pointer font-medium"
-          >
-            <span>🖼️</span>
-            <span>Export PNG Image</span>
-          </button>
-
+        <div className="absolute right-0 top-12 z-50 w-52 glass-panel p-1.5 bg-white border border-outline-variant/30 shadow-2xl rounded-xl flex flex-col gap-1 text-xs">
+          
           {/* JPEG Export */}
           <button
             onClick={handleExportJpeg}
-            className="flex items-center gap-2.5 px-3 py-2 text-slate-200 hover:text-on-primary-container hover:bg-surface-variant/60 rounded-lg transition-colors text-left cursor-pointer font-medium"
+            className="flex items-center gap-2.5 px-3 py-2 text-slate-700 hover:text-primary hover:bg-surface-variant/60 rounded-lg transition-colors text-left cursor-pointer font-medium"
           >
-            <span>📷</span>
             <span>Export JPEG Image</span>
           </button>
 
           {/* SVG Vector Export */}
           <button
             onClick={handleExportSvg}
-            className="flex items-center gap-2.5 px-3 py-2 text-slate-200 hover:text-on-primary-container hover:bg-surface-variant/60 rounded-lg transition-colors text-left cursor-pointer font-medium"
+            className="flex items-center gap-2.5 px-3 py-2 text-slate-700 hover:text-primary hover:bg-surface-variant/60 rounded-lg transition-colors text-left cursor-pointer font-medium"
           >
-            <span>🎨</span>
             <span>Export SVG Vector</span>
           </button>
 
           {/* JSON Workspace Export */}
           <button
             onClick={handleExportJson}
-            className="flex items-center gap-2.5 px-3 py-2 text-slate-200 hover:text-on-primary-container hover:bg-surface-variant/60 rounded-lg transition-colors text-left cursor-pointer font-medium"
+            className="flex items-center gap-2.5 px-3 py-2 text-slate-700 hover:text-primary hover:bg-surface-variant/60 rounded-lg transition-colors text-left cursor-pointer font-medium"
           >
-            <span>📄</span>
             <span>Export JSON Workspace</span>
           </button>
 
@@ -162,9 +151,8 @@ export const ExportMenu: React.FC<ExportMenuProps> = ({
           {/* JSON Workspace Import */}
           <button
             onClick={handleImportClick}
-            className="flex items-center gap-2.5 px-3 py-2 text-on-primary-container hover:text-on-surface-variant hover:bg-surface-variant/60 rounded-lg transition-colors text-left cursor-pointer font-semibold"
+            className="flex items-center gap-2.5 px-3 py-2 text-primary font-semibold hover:bg-surface-variant/60 rounded-lg transition-colors text-left cursor-pointer"
           >
-            <span>📂</span>
             <span>Import JSON Canvas</span>
           </button>
         </div>

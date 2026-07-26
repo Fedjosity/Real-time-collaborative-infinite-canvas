@@ -17,12 +17,16 @@ import MicIcon from '@mui/icons-material/Mic';
 import CleaningServicesIcon from '@mui/icons-material/CleaningServices';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import MapIcon from '@mui/icons-material/Map';
+import AdjustIcon from '@mui/icons-material/Adjust';
+import AllOutIcon from '@mui/icons-material/AllOut';
+import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 
 export interface ToolbarProps {
   onAddObject?: (type: string, extraData?: Record<string, unknown>) => void;
+  onTogglePhysics?: () => void;
 }
 
-export const Toolbar: React.FC<ToolbarProps> = ({ onAddObject }) => {
+export const Toolbar: React.FC<ToolbarProps> = ({ onAddObject, onTogglePhysics }) => {
   const activeTool = useCanvasStore((state) => state.activeTool);
   const setActiveTool = useCanvasStore((state) => state.setActiveTool);
   const shapeType = useCanvasStore((state) => state.shapeType);
@@ -31,6 +35,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({ onAddObject }) => {
   const setCurrentColor = useCanvasStore((state) => state.setCurrentColor);
   const physicsEnabled = useCanvasStore((state) => state.physicsEnabled);
   const togglePhysics = useCanvasStore((state) => state.togglePhysics);
+  const creationForceType = useCanvasStore((state) => state.creationForceType);
+  const setCreationForceType = useCanvasStore((state) => state.setCreationForceType);
 
   const toggleMiniMap = useUIStore((state) => state.toggleMiniMap);
   const showMiniMap = useUIStore((state) => state.showMiniMap);
@@ -243,7 +249,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({ onAddObject }) => {
 
         {/* Physics Toggle */}
         <button
-          onClick={togglePhysics}
+          onClick={() => {
+            if (onTogglePhysics) onTogglePhysics();
+            else togglePhysics();
+          }}
           className={`group relative flex items-center justify-center p-3 rounded-full active:scale-95 transition-all ${
             physicsEnabled
               ? 'bg-tertiary text-white shadow-md animate-bounce'
@@ -304,7 +313,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({ onAddObject }) => {
           >
             <ImageIcon fontSize="small" />
           </button>
-          <div className="w-px h-6 bg-outline-variant/30 shrink-0" />
+
+          <div className="w-px h-8 bg-outline-variant/30" />
           <button
             onClick={toggleMiniMap}
             className={`min-w-[44px] h-11 rounded-full flex items-center justify-center transition-all ${
@@ -314,7 +324,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({ onAddObject }) => {
             <MapIcon fontSize="small" />
           </button>
           <button
-            onClick={togglePhysics}
+            onClick={() => {
+              if (onTogglePhysics) onTogglePhysics();
+              else togglePhysics();
+            }}
             className={`min-w-[44px] h-11 rounded-full flex items-center justify-center transition-all ${
               physicsEnabled ? 'bg-tertiary text-white' : 'text-tertiary'
             }`}

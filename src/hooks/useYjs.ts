@@ -68,7 +68,15 @@ export function useYjs(roomId: string, localUser: LocalUser | null) {
     setProvider(wsProvider);
 
     const handleObjectsChange = () => {
-      const allObjects = Array.from(objectsMap.values());
+      const sanitizeObj = (obj: CanvasObject): CanvasObject => ({
+        ...obj,
+        x: isNaN(obj.x) || obj.x === null ? 0 : obj.x,
+        y: isNaN(obj.y) || obj.y === null ? 0 : obj.y,
+        width: isNaN(obj.width) || obj.width === null ? 100 : obj.width,
+        height: isNaN(obj.height) || obj.height === null ? 100 : obj.height,
+        rotation: isNaN(obj.rotation) || obj.rotation === null ? 0 : obj.rotation,
+      });
+      const allObjects = Array.from(objectsMap.values()).map(sanitizeObj);
       // Sort ascending so bottom layers are first (rendered back-to-front in Konva)
       allObjects.sort((a, b) => (a.zIndex || 0) - (b.zIndex || 0));
       setObjects(allObjects);
@@ -171,7 +179,7 @@ export function useYjs(roomId: string, localUser: LocalUser | null) {
         height,
         rotation: 0,
         data: objectData,
-        physics: { ...DEFAULT_PHYSICS, enabled: physicsEnabled },
+        physics: { ...DEFAULT_PHYSICS, enabled: physicsEnabled, ...(extraData.physics as any) },
         createdBy: localUser?.username || 'Guest',
         createdAt: Date.now(),
         zIndex: map.size + 1,
@@ -199,9 +207,18 @@ export function useYjs(roomId: string, localUser: LocalUser | null) {
     const existing = map.get(id);
     if (!existing) return;
 
+    // Sanitize to prevent NaN corruption
+    const sanitizeNum = (newVal: any, oldVal: number) => 
+      typeof newVal === 'number' && !isNaN(newVal) ? newVal : oldVal;
+
     const updated: CanvasObject = {
       ...existing,
       ...partialAttrs,
+      x: sanitizeNum(partialAttrs.x, existing.x),
+      y: sanitizeNum(partialAttrs.y, existing.y),
+      width: sanitizeNum(partialAttrs.width, existing.width),
+      height: sanitizeNum(partialAttrs.height, existing.height),
+      rotation: sanitizeNum(partialAttrs.rotation, existing.rotation),
       // Merge data payload if present
       data: partialAttrs.data ? { ...existing.data, ...partialAttrs.data } : existing.data,
     };

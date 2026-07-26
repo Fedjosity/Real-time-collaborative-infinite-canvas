@@ -180,6 +180,9 @@ export type ObjectData =
 
 // ─── Physics Properties ─────────────────────────────────────────────────────
 
+export type PhysicsState = 'resting' | 'active' | 'dragging';
+export type ForceFieldType = 'none' | 'attract' | 'repel';
+
 /**
  * Physics simulation properties attached to each canvas object.
  * Synced via Yjs so all users see the same physics state.
@@ -187,6 +190,10 @@ export type ObjectData =
 export interface PhysicsProperties {
   /** Whether this object participates in physics simulation */
   enabled: boolean;
+  /** Simulation lifecycle state (active = simulated by authority, resting = static) */
+  state?: PhysicsState;
+  /** Username or ID of the client currently governing this object's simulation */
+  authority?: string | null;
   /** Current velocity vector (pixels/second) */
   velocity: Position;
   /** Angular velocity (radians/second) */
@@ -195,10 +202,14 @@ export interface PhysicsProperties {
   mass: number;
   /** Surface friction (0 = ice, 1 = sandpaper) */
   friction: number;
+  /** Air resistance / deceleration (prevents sliding forever) */
+  frictionAir?: number;
   /** Bounciness on collision (0 = no bounce, 1 = perfect bounce) */
   restitution: number;
   /** Static objects don't move but others can collide with them */
   isStatic: boolean;
+  /** Active spatial force field emitted by this object */
+  forceType?: ForceFieldType;
 }
 
 // ─── Canvas Object (Core Entity) ────────────────────────────────────────────
@@ -282,12 +293,16 @@ export interface ToolState {
 /** Default physics properties for new objects */
 export const DEFAULT_PHYSICS: PhysicsProperties = {
   enabled: false,
+  state: 'resting',
+  authority: null,
   velocity: { x: 0, y: 0 },
   angularVelocity: 0,
   mass: 1,
   friction: 0.1,
+  frictionAir: 0.02,
   restitution: 0.6,
   isStatic: false,
+  forceType: 'none',
 };
 
 /** Default text data for new text objects */
