@@ -520,18 +520,21 @@ export default function RoomPage({ params }: RoomPageProps) {
       </div>
 
       {/* Guest Authentication Join Modal */}
-      <JoinModal
-        isOpen={showJoinModal}
-        roomId={roomId}
-        onJoin={(user) => {
-          setLocalUser(user);
-          setShowJoinModal(false);
-          addToast({
-            type: "success",
-            message: `Welcome to room ${roomId}, ${user.username}!`,
-          });
-        }}
-      />
+      {showJoinModal && (
+        <JoinModal
+          isOpen={showJoinModal}
+          roomId={roomId}
+          existingUsers={remoteUsers.filter(u => !u.isLocal).map(u => u.username)}
+          onJoin={(user) => {
+            setLocalUser(user);
+            setShowJoinModal(false);
+            addToast({
+              type: "success",
+              message: `Welcome to room ${roomId}, ${user.username}!`,
+            });
+          }}
+        />
+      )}
 
       {/* Connected Users Modal */}
       <Modal

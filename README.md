@@ -98,7 +98,7 @@ The custom `server.js` automatically runs `npx prisma db push --skip-generate` o
 
 ---
 
-## 🧪 Testing
+## 🧪 Testing & Evaluation
 
 We use **Vitest** for unit tests and **Playwright** for end-to-end testing.
 
@@ -112,6 +112,15 @@ pnpm test:watch
 # Run E2E Tests (requires Playwright browsers to be installed)
 pnpm test:e2e
 ```
+
+### 🏎️ Hackathon Judge Stress Test
+To test the infinite canvas and spatial rendering performance with 100+ objects (as requested in the hackathon criteria), we've included a real-time stress testing script. 
+
+Join a room in your browser, copy the Room ID from the URL, and run:
+```bash
+node scripts/stress-test.js <ROOM_ID>
+```
+This connects directly to the `y-websocket` server and instantly spawns 110 randomized shapes into the live collaborative session.
 
 ## 📂 Key Directory Structure
 

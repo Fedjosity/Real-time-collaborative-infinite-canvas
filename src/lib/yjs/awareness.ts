@@ -52,15 +52,36 @@ export function getActiveRemoteUsers(
   localClientID: number
 ): User[] {
   const states = awareness.getStates();
-  const users: User[] = [];
+  const latestStatesByDevice = new Map<string, { clientID: number; state: any; isLocal: boolean }>();
 
+  // 1. Group by deviceId and keep the most recently active state
   states.forEach((state, clientID) => {
     if (!state || !state.user) return;
+    
+    const id = state.user.deviceId || clientID.toString();
     const isLocal = clientID === localClientID;
+    
+    // Always prefer the actual local client for our own deviceId
+    if (isLocal) {
+      latestStatesByDevice.set(id, { clientID, state, isLocal });
+    } else {
+      const existing = latestStatesByDevice.get(id);
+      // If we already have our local client mapped for this deviceId, do not overwrite it with a remote tab's state
+      if (existing && existing.isLocal) return;
 
+      // Otherwise, keep the one with the most recent lastActive timestamp
+      if (!existing || (state.lastActive || 0) > (existing.state.lastActive || 0)) {
+        latestStatesByDevice.set(id, { clientID, state, isLocal });
+      }
+    }
+  });
+
+  // 2. Map to User[]
+  const users: User[] = [];
+  latestStatesByDevice.forEach(({ clientID, state, isLocal }, id) => {
     users.push({
       clientId: clientID,
-      id: state.user.deviceId || clientID.toString(),
+      id,
       username: state.user.username || 'Anonymous',
       color: state.user.color || '#D4AF37',
       cursor: state.cursor || null,

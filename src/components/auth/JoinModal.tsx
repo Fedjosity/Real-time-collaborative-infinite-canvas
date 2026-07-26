@@ -1,18 +1,19 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { Modal } from '@/components/ui/Modal';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
-import { USER_COLORS, getRandomUserColor } from '@/lib/utils/colors';
-import { generateDeviceId } from '@/lib/utils/id';
-import { STORAGE_KEYS, type LocalUser } from '@/types/room';
+import React, { useState, useEffect } from "react";
+import { Modal } from "@/components/ui/Modal";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { USER_COLORS, getRandomUserColor } from "@/lib/utils/colors";
+import { generateDeviceId } from "@/lib/utils/id";
+import { STORAGE_KEYS, type LocalUser } from "@/types/room";
 
 export interface JoinModalProps {
   isOpen: boolean;
-  onClose?: () => void;
   onJoin: (user: LocalUser) => void;
+  onClose?: () => void;
   roomId?: string;
+  existingUsers?: string[];
 }
 
 export const JoinModal: React.FC<JoinModalProps> = ({
@@ -20,11 +21,12 @@ export const JoinModal: React.FC<JoinModalProps> = ({
   onClose,
   onJoin,
   roomId,
+  existingUsers = [],
 }) => {
-  const [username, setUsername] = useState('');
-  const [selectedColor, setSelectedColor] = useState('#6366F1');
-  const [deviceId, setDeviceId] = useState('');
-  const [error, setError] = useState('');
+  const [username, setUsername] = useState("");
+  const [selectedColor, setSelectedColor] = useState("#6366F1");
+  const [deviceId, setDeviceId] = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     // Load persisted local user or generate fresh defaults
@@ -32,12 +34,12 @@ export const JoinModal: React.FC<JoinModalProps> = ({
     if (stored) {
       try {
         const parsed: LocalUser = JSON.parse(stored);
-        setUsername(parsed.username || '');
+        setUsername(parsed.username || "");
         setSelectedColor(parsed.color || getRandomUserColor());
         setDeviceId(parsed.deviceId || generateDeviceId());
         return;
       } catch (err) {
-        console.warn('Failed to parse stored local user:', err);
+        console.warn("Failed to parse stored local user:", err);
       }
     }
 
@@ -52,11 +54,16 @@ export const JoinModal: React.FC<JoinModalProps> = ({
     e.preventDefault();
     const trimmed = username.trim();
     if (!trimmed) {
-      setError('Username is required');
+      setError("Username is required");
       return;
     }
     if (trimmed.length > 20) {
-      setError('Username must be 20 characters or less');
+      setError("Username must be 20 characters or less");
+      return;
+    }
+    
+    if (existingUsers.some(u => u.toLowerCase() === trimmed.toLowerCase())) {
+      setError("Username is already taken in this room");
       return;
     }
 
@@ -71,12 +78,17 @@ export const JoinModal: React.FC<JoinModalProps> = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose || (() => {})} title="Join Collaboration Room">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose || (() => {})}
+      title="Join Collaboration Room"
+    >
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <div className="text-sm text-on-surface-variant">
-          Enter your name and pick an accent color for your live cursor & avatar.
+          Enter your name and pick an accent color for your live cursor &
+          avatar.
           {roomId && (
-            <div className="mt-2 text-xs font-mono text-indigo-400 bg-indigo-950/60 p-2 rounded-lg border border-indigo-800/40">
+            <div className="mt-2 text-xs font-mono bg-white p-2 rounded-lg border border-indigo-800/40">
               Room ID: {roomId}
             </div>
           )}
@@ -88,7 +100,7 @@ export const JoinModal: React.FC<JoinModalProps> = ({
           value={username}
           onChange={(e) => {
             setUsername(e.target.value);
-            if (error) setError('');
+            if (error) setError("");
           }}
           error={error}
           autoFocus
@@ -99,15 +111,15 @@ export const JoinModal: React.FC<JoinModalProps> = ({
           <label className="text-xs font-medium text-on-surface-variant tracking-wide">
             Your Cursor & Presence Color
           </label>
-          <div className="grid grid-cols-10 gap-2 p-2.5 bg-on-surface/60 rounded-xl border border-surface-variant">
+          <div className="grid grid-cols-10 gap-2 p-2.5 bg-gray-300 rounded-xl border border-surface-variant">
             {USER_COLORS.map((color, idx) => (
               <button
                 key={`${color}-${idx}`}
                 type="button"
                 className={`w-6 h-6 rounded-full transition-all duration-150 cursor-pointer ${
                   selectedColor === color
-                    ? 'ring-2 ring-white ring-offset-2 ring-offset-on-surface scale-110'
-                    : 'hover:scale-105 opacity-80 hover:opacity-100'
+                    ? "ring-2 ring-white ring-offset-2 ring-offset-on-surface scale-110"
+                    : "hover:scale-105 opacity-80 hover:opacity-100"
                 }`}
                 style={{ backgroundColor: color }}
                 onClick={() => setSelectedColor(color)}
