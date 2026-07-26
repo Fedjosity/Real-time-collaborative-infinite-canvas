@@ -60,17 +60,17 @@ export const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({
       <div className="flex flex-col gap-6 text-sm">
         {shortcutGroups.map((group) => (
           <div key={group.title} className="flex flex-col gap-2">
-            <h4 className="text-xs font-bold text-on-primary-container uppercase tracking-wider font-mono">
+            <h4 className="text-xs font-bold text-primary uppercase tracking-wider">
               {group.title}
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {group.items.map((item) => (
                 <div
                   key={item.key}
-                  className="flex items-center justify-between p-2.5 rounded-xl bg-on-surface/70 border border-outline-variant/20"
+                  className="flex items-center justify-between p-3 rounded-xl bg-surface-container border border-outline-variant/30"
                 >
-                  <span className="text-xs text-on-surface-variant font-medium">{item.description}</span>
-                  <kbd className="px-2 py-0.5 rounded bg-on-surface text-on-primary-container font-mono text-[11px] border border-outline-variant/30">
+                  <span className="text-xs text-on-surface font-medium">{item.description}</span>
+                  <kbd className="px-2 py-1 rounded-md bg-white text-on-surface font-mono text-[11px] font-bold border border-outline-variant shadow-sm">
                     {item.key}
                   </kbd>
                 </div>
@@ -79,8 +79,8 @@ export const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({
           </div>
         ))}
 
-        <div className="pt-2 border-t border-outline-variant/20 text-center text-xs text-outline-variant">
-          Press <kbd className="px-1.5 py-0.5 rounded bg-on-surface text-primary-container font-mono">?</kbd> anytime to open this guide.
+        <div className="pt-4 border-t border-outline-variant text-center text-xs text-on-surface-variant">
+          Press <kbd className="px-1.5 py-0.5 rounded-md bg-white border border-outline-variant text-on-surface font-mono shadow-sm">?</kbd> anytime to open this guide.
         </div>
       </div>
     </Modal>

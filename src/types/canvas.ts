@@ -298,7 +298,7 @@ export const DEFAULT_TEXT_DATA: TextData = {
   fontWeight: 'normal',
   fontStyle: 'normal',
   textDecoration: 'none',
-  color: '#FEF3C7',
+  color: '#0061a5',
   align: 'left',
   lineHeight: 1.5,
 };
@@ -306,8 +306,8 @@ export const DEFAULT_TEXT_DATA: TextData = {
 /** Default shape data for new shapes */
 export const DEFAULT_SHAPE_DATA: ShapeData = {
   shapeType: 'rectangle',
-  fill: '#D4AF37',
-  stroke: '#F59E0B',
+  fill: '#0d99ff',
+  stroke: '#0061a5',
   strokeWidth: 2,
   cornerRadius: 8,
   numPoints: 5,
@@ -317,8 +317,8 @@ export const DEFAULT_SHAPE_DATA: ShapeData = {
 /** Default sticky note data */
 export const DEFAULT_STICKY_DATA: StickyData = {
   content: '',
-  backgroundColor: '#FEF08A',
-  textColor: '#1C1917',
+  backgroundColor: '#f8f9fa',
+  textColor: '#191c1d',
   fontSize: 14,
   author: '',
 };

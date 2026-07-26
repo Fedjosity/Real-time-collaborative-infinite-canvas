@@ -65,7 +65,6 @@ export default function LandingPage() {
               className="w-10 h-10 object-contain"
               src="/logo.png"
             />
-            <span>CollabCanvas</span>
           </div>
 
           <div className="flex items-center gap-4">

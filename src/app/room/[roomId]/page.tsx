@@ -13,6 +13,7 @@ import { KeyboardShortcutsModal } from '@/components/ui/KeyboardShortcutsModal';
 import { TimeTravelBar } from '@/components/timetravel/TimeTravelBar';
 import { ExportMenu } from '@/components/export/ExportMenu';
 import { JoinModal } from '@/components/auth/JoinModal';
+import { Modal } from '@/components/ui/Modal';
 import { useYjs } from '@/hooks/useYjs';
 import { useAwareness } from '@/hooks/useAwareness';
 import { usePhysics } from '@/hooks/usePhysics';
@@ -50,6 +51,7 @@ export default function RoomPage({ params }: RoomPageProps) {
   const [isReplaying, setIsReplaying] = useState(false);
   const [snapshots, setSnapshots] = useState<CanvasSnapshot[]>([]);
   const [snapshotIndex, setSnapshotIndex] = useState(0);
+  const [showUsersModal, setShowUsersModal] = useState(false);
 
   const camera = useCanvasStore((state) => state.camera);
   const setCamera = useCanvasStore((state) => state.setCamera);
@@ -95,7 +97,21 @@ export default function RoomPage({ params }: RoomPageProps) {
     awareness,
     addObject,
     updateObject,
+    deleteObject,
   } = useYjs(roomId, localUser);
+
+  // Handle keyboard shortcuts (Delete/Backspace)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedObjectIds.length > 0) {
+        if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+        selectedObjectIds.forEach(id => deleteObject(id));
+        useCanvasStore.getState().clearSelection();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedObjectIds, deleteObject]);
 
   // Record snapshots whenever objects change
   useEffect(() => {
@@ -210,21 +226,33 @@ export default function RoomPage({ params }: RoomPageProps) {
         {/* Right Nav Actions */}
         <div className="flex items-center gap-2 md:gap-3">
           {/* User Avatars Stack */}
-          <div className="flex items-center -space-x-2 mr-1">
-            <div className="w-8 h-8 rounded-full border-2 border-white bg-primary flex items-center justify-center text-white text-xs font-bold shadow-sm">
+          <div 
+            className="flex items-center -space-x-2 mr-1 cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={() => setShowUsersModal(true)}
+            title="View all users in room"
+          >
+            <div 
+              className="w-8 h-8 rounded-full border-2 border-white bg-primary flex items-center justify-center text-white text-xs font-bold shadow-sm relative group"
+            >
               {localUser?.username?.[0]?.toUpperCase() || 'G'}
+              <div className="absolute top-10 whitespace-nowrap bg-on-surface text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                {localUser?.username || 'Guest'} (You)
+              </div>
             </div>
-            {connectedUsers.slice(0, 2).map((u, i) => (
+            {connectedUsers.filter(u => !u.isLocal).slice(0, 2).map((u) => (
               <div
-                key={u.id || i}
-                className="w-8 h-8 rounded-full border-2 border-white bg-tertiary flex items-center justify-center text-white text-xs font-bold shadow-sm"
+                key={u.clientId}
+                className="w-8 h-8 rounded-full border-2 border-white bg-tertiary flex items-center justify-center text-white text-xs font-bold shadow-sm relative group"
               >
                 {u.username?.[0]?.toUpperCase() || 'U'}
+                <div className="absolute top-10 whitespace-nowrap bg-on-surface text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                  {u.username}
+                </div>
               </div>
             ))}
-            {connectedUsers.length > 2 && (
+            {connectedUsers.filter(u => !u.isLocal).length > 2 && (
               <div className="w-8 h-8 rounded-full border-2 border-white bg-surface-container-high flex items-center justify-center text-on-surface-variant text-xs font-bold shadow-sm">
-                +{connectedUsers.length - 2}
+                +{connectedUsers.filter(u => !u.isLocal).length - 2}
               </div>
             )}
           </div>
@@ -357,6 +385,46 @@ export default function RoomPage({ params }: RoomPageProps) {
           addToast({ type: 'success', message: `Welcome to room ${roomId}, ${user.username}!` });
         }}
       />
+
+      {/* Connected Users Modal */}
+      <Modal 
+        isOpen={showUsersModal} 
+        onClose={() => setShowUsersModal(false)}
+        title="👥 People in this Room"
+        maxWidth="sm"
+      >
+        <div className="flex flex-col gap-3 max-h-64 overflow-y-auto pr-2">
+          {/* Local User */}
+          <div className="flex items-center gap-3 p-3 bg-primary/5 rounded-xl border border-primary/20">
+            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold">
+              {localUser?.username?.[0]?.toUpperCase() || 'G'}
+            </div>
+            <div className="flex flex-col">
+              <span className="font-bold text-sm text-on-surface">
+                {localUser?.username || 'Guest'} <span className="text-primary text-xs font-normal bg-primary/10 px-1.5 py-0.5 rounded ml-1">You</span>
+              </span>
+              <span className="text-xs text-on-surface-variant">Active now</span>
+            </div>
+          </div>
+          
+          {/* Remote Users */}
+          {connectedUsers.filter(u => !u.isLocal).map((u) => (
+            <div key={u.clientId} className="flex items-center gap-3 p-3 bg-surface-container rounded-xl border border-outline-variant/30">
+              <div className="w-10 h-10 rounded-full bg-tertiary flex items-center justify-center text-white font-bold">
+                {u.username?.[0]?.toUpperCase() || 'U'}
+              </div>
+              <div className="flex flex-col">
+                <span className="font-medium text-sm text-on-surface">{u.username}</span>
+                <span className="text-xs text-on-surface-variant">Connected</span>
+              </div>
+            </div>
+          ))}
+
+          {connectedUsers.filter(u => !u.isLocal).length === 0 && (
+            <p className="text-sm text-on-surface-variant text-center py-4">No one else is here yet.</p>
+          )}
+        </div>
+      </Modal>
     </div>
   );
 }
