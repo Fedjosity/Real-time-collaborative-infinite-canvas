@@ -179,16 +179,16 @@ export const Toolbar: React.FC<ToolbarProps> = ({ onAddObject }) => {
           </button>
 
           {showShapeMenu && (
-            <div className="absolute left-16 top-0 z-50 glass-panel p-2 bg-white/95 dark:bg-inverse-surface/95 border border-outline-variant/30 shadow-2xl rounded-2xl grid grid-cols-3 gap-1.5 w-36 animate-in fade-in zoom-in-95 duration-150">
+            <div className="absolute left-16 top-0 z-50 glass-panel p-2 bg-white border border-primary/20 shadow-2xl rounded-2xl grid grid-cols-3 gap-1.5 w-36 animate-in fade-in zoom-in-95 duration-150">
               {shapes.map((s) => (
                 <button
                   key={s.type}
                   type="button"
-                  className={`h-9 rounded-xl flex items-center justify-center text-sm font-medium transition-colors cursor-pointer ${
-                    shapeType === s.type
-                      ? 'bg-primary text-white'
-                      : 'hover:bg-surface-container-high text-on-surface-variant'
-                  }`}
+                  className={`h-10 rounded-xl flex items-center justify-center text-sm font-medium transition-colors cursor-pointer ${
+                  shapeType === s.type
+                    ? 'bg-primary text-white'
+                    : 'hover:bg-primary/10 text-slate-700'
+                }`}
                   onClick={() => {
                     setShapeType(s.type);
                     setActiveTool('shape');

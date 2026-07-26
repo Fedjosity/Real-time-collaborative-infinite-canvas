@@ -46,32 +46,32 @@ export const TimeTravelBar: React.FC<TimeTravelBarProps> = ({
   const currentSnapshot = snapshots[currentIndex] || snapshots[snapshots.length - 1];
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-full max-w-2xl glass-panel p-4 bg-[#ffffff]/95 border border-outline-variant/30 shadow-2xl rounded-2xl flex flex-col gap-3">
+    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40 w-full max-w-2xl p-5 bg-white backdrop-blur-xl border border-primary/20 shadow-2xl rounded-3xl flex flex-col gap-3">
       {/* Top Controls Header */}
       <div className="flex items-center justify-between text-xs font-mono">
         <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-pink-500 animate-pulse" />
-          <span className="font-bold text-on-primary-container tracking-wide uppercase">
+          <span className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
+          <span className="font-bold text-primary tracking-wide uppercase">
             TIME-TRAVEL REPLAY
           </span>
-          <span className="text-surface-bright0">•</span>
-          <span className="text-on-surface-variant">
+          <span className="text-slate-300">•</span>
+          <span className="text-slate-500 font-medium">
             Step {currentIndex + 1} of {snapshots.length}
           </span>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-outline-variant">
+          <span className="text-slate-400">
             {currentSnapshot ? formatSnapshotTime(currentSnapshot.timestamp) : ''}
           </span>
           {currentSnapshot?.author && (
-            <span className="px-2 py-0.5 rounded-full bg-primary/10 text-on-primary-container border border-outline-variant/20 text-[10px]">
+            <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 text-[10px] font-bold">
               By {currentSnapshot.author}
             </span>
           )}
           <button
             onClick={onClose}
-            className="text-outline-variant hover:text-on-primary-container p-1 rounded-lg hover:bg-surface-variant transition-colors ml-2"
+            className="text-slate-400 hover:text-slate-700 p-1 rounded-lg hover:bg-slate-100 transition-colors ml-2"
             aria-label="Close replay"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -89,7 +89,7 @@ export const TimeTravelBar: React.FC<TimeTravelBarProps> = ({
           max={snapshots.length - 1}
           value={currentIndex}
           onChange={(e) => onSelectSnapshot(parseInt(e.target.value, 10))}
-          className="w-full h-2 bg-on-surface rounded-lg appearance-none cursor-pointer accent-primary-container"
+          className="w-full h-2 bg-primary/20 rounded-lg appearance-none cursor-pointer accent-primary"
         />
       </div>
 
@@ -128,15 +128,15 @@ export const TimeTravelBar: React.FC<TimeTravelBarProps> = ({
         </div>
 
         {/* Speed Selector */}
-        <div className="flex items-center gap-1 bg-on-surface p-1 rounded-xl border border-outline-variant/20">
+        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
           {([1, 2, 5] as const).map((speed) => (
             <button
               key={speed}
               onClick={() => setPlaybackSpeed(speed)}
               className={`px-2.5 py-1 text-xs font-mono rounded-lg transition-colors cursor-pointer ${
                 playbackSpeed === speed
-                  ? 'bg-primary text-on-surface font-bold'
-                  : 'text-outline-variant hover:text-on-primary-container'
+                  ? 'bg-primary text-white font-bold shadow-sm'
+                  : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200/50'
               }`}
             >
               {speed}x

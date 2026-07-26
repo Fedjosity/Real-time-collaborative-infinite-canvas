@@ -145,8 +145,8 @@ export const CanvasObjectItem: React.FC<CanvasObjectProps> = ({
           }}
           anchorSize={8}
           anchorCornerRadius={4}
-          anchorFill="#38BDF8"
-          anchorStroke="#0F172A"
+          anchorFill="#ffffff"
+          anchorStroke="#38BDF8"
           borderStroke="#38BDF8"
           borderStrokeWidth={1.5}
         />

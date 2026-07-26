@@ -64,6 +64,8 @@ export default function RoomPage({ params }: RoomPageProps) {
   const activeTool = useCanvasStore((state) => state.activeTool);
   const setActiveTool = useCanvasStore((state) => state.setActiveTool);
   const shapeType = useCanvasStore((state) => state.shapeType);
+  const currentColor = useCanvasStore((state) => state.currentColor);
+  const strokeColor = useCanvasStore((state) => state.strokeColor);
 
   const connectionStatus = useRoomStore((state) => state.connectionStatus);
   const connectedUsers = useRoomStore((state) => state.connectedUsers);
@@ -171,7 +173,7 @@ export default function RoomPage({ params }: RoomPageProps) {
       y: worldCenter.y + staggerOffset,
     };
 
-    const newObj = addObject(type, spawnPos, extraData);
+    const newObj = addObject(type, spawnPos, { fill: currentColor, stroke: strokeColor, ...extraData });
     if (newObj?.id) selectObject(newObj.id);
   };
 
@@ -188,7 +190,7 @@ export default function RoomPage({ params }: RoomPageProps) {
       activeTool === "sticky"
     ) {
       const worldPos = screenToWorld(pointer, camera);
-      const newObj = addObject(activeTool, worldPos, { shapeType });
+      const newObj = addObject(activeTool, worldPos, { shapeType, fill: currentColor, stroke: strokeColor });
       if (newObj?.id) selectObject(newObj.id);
       setActiveTool("select");
     }
@@ -382,25 +384,25 @@ export default function RoomPage({ params }: RoomPageProps) {
         {/* Responsive Creative Toolbar (Desktop left bar + Mobile bottom bar) */}
         <Toolbar onAddObject={handleAddObjectFromToolbar} />
 
-        {/* Zoom Controls (Bottom Left, offset to avoid toolbar overlap) */}
-        <div className="fixed bottom-24 md:bottom-6 left-20 z-40 flex flex-col gap-1">
-          <div className="flex flex-col rounded-full p-1 border border-outline-variant/30 shadow-md bg-white/90 backdrop-blur-md">
-            <button
-              onClick={() => handleZoom(1.2)}
-              className="w-9 h-9 flex items-center justify-center text-primary hover:bg-surface-container-high rounded-full active:scale-95 transition-all"
-              title="Zoom In"
-            >
-              <AddIcon fontSize="small" />
-            </button>
-            <div className="text-center font-bold text-[11px] py-1 text-on-surface">
-              {Math.round(camera.scale * 100)}%
-            </div>
+        {/* Zoom Controls (Bottom Left, horizontal pill next to toolbar) */}
+        <div className="fixed bottom-8 left-24 md:left-28 z-40 flex">
+          <div className="flex flex-row items-center rounded-full p-1 border border-primary/20 shadow-lg bg-white/95 backdrop-blur-md">
             <button
               onClick={() => handleZoom(0.8)}
-              className="w-9 h-9 flex items-center justify-center text-primary hover:bg-surface-container-high rounded-full active:scale-95 transition-all"
+              className="w-9 h-9 flex items-center justify-center text-primary hover:bg-primary/10 rounded-full active:scale-95 transition-all"
               title="Zoom Out"
             >
               <RemoveIcon fontSize="small" />
+            </button>
+            <div className="text-center font-bold text-[12px] px-3 text-slate-800">
+              {Math.round(camera.scale * 100)}%
+            </div>
+            <button
+              onClick={() => handleZoom(1.2)}
+              className="w-9 h-9 flex items-center justify-center text-primary hover:bg-primary/10 rounded-full active:scale-95 transition-all"
+              title="Zoom In"
+            >
+              <AddIcon fontSize="small" />
             </button>
           </div>
         </div>
