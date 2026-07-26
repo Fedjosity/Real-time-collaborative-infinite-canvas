@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Text, Group } from 'react-konva';
+import { Group, Rect } from 'react-konva';
 import { Html } from 'react-konva-utils';
 import type Konva from 'konva';
 import type { CanvasObject, TextData } from '@/types/canvas';
@@ -22,72 +22,66 @@ export const TextObject: React.FC<TextObjectProps> = ({
   const data = object.data as TextData;
   const [isEditing, setIsEditing] = useState(false);
   const [textValue, setTextValue] = useState(data.content || 'Double-click to edit');
-  const textRef = useRef<Konva.Text | null>(null);
+  const editableRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setTextValue(data.content || 'Double-click to edit');
-  }, [data.content]);
+    // Only update from external if we are not actively editing to avoid jumping cursor
+    if (!isEditing) {
+      setTextValue(data.content || 'Double-click to edit');
+    }
+  }, [data.content, isEditing]);
 
   const handleDoubleClick = () => {
     setIsEditing(true);
+    setTimeout(() => {
+      editableRef.current?.focus();
+    }, 0);
   };
 
   const handleBlur = () => {
     setIsEditing(false);
-    onUpdate({ content: textValue });
+    if (editableRef.current) {
+      onUpdate({ content: editableRef.current.innerHTML });
+    }
   };
 
   return (
     <Group x={0} y={0} rotation={0} onClick={onSelect} onTap={onSelect}>
-      {isEditing ? (
-        <Html divProps={{ style: { pointerEvents: 'auto' } }}>
-          <textarea
-            value={textValue}
-            onChange={(e) => setTextValue(e.target.value)}
-            onBlur={handleBlur}
-            onKeyDown={(e) => {
-              if (e.key === 'Escape' || (e.key === 'Enter' && !e.shiftKey)) {
-                e.preventDefault();
-                e.currentTarget.blur();
-              }
-            }}
-            autoFocus
-            style={{
-              width: `${object.width}px`,
-              height: `${object.height}px`,
-              border: 'none',
-              padding: '0px',
-              margin: '0px',
-              background: 'transparent',
-              outline: 'none',
-              resize: 'none',
-              color: data.color || '#E2E8F0',
-              fontSize: `${data.fontSize || 18}px`,
-              fontFamily: data.fontFamily || 'Inter, sans-serif',
-              textAlign: data.align || 'left',
-              lineHeight: data.lineHeight || 1.4,
-              overflow: 'hidden',
-              whiteSpace: 'pre-wrap',
-            }}
-          />
-        </Html>
-      ) : (
-        <Text
-          ref={textRef}
+      <Html divProps={{ style: { pointerEvents: isEditing ? 'auto' : 'none' } }}>
+        <div
+          ref={editableRef}
+          contentEditable={isEditing}
+          onBlur={handleBlur}
+          dangerouslySetInnerHTML={{ __html: textValue }}
+          onInput={(e) => setTextValue(e.currentTarget.innerHTML)}
+          style={{
+            width: `${object.width}px`,
+            height: `${object.height}px`,
+            border: isEditing ? '1px dashed #0d99ff' : 'none',
+            padding: '0px',
+            margin: '0px',
+            background: 'transparent',
+            outline: 'none',
+            color: data.color || '#E2E8F0',
+            fontSize: `${data.fontSize || 18}px`,
+            fontFamily: data.fontFamily || 'Inter, sans-serif',
+            textAlign: data.align || 'left',
+            lineHeight: data.lineHeight || 1.4,
+            overflow: 'hidden',
+            whiteSpace: 'pre-wrap',
+            cursor: isEditing ? 'text' : 'pointer',
+          }}
+        />
+      </Html>
+      {!isEditing && (
+        <Rect
           x={0}
           y={0}
-          text={textValue}
-          fontSize={data.fontSize || 18}
-          fontFamily={data.fontFamily || 'Inter, sans-serif'}
-          fontStyle={data.fontStyle || 'normal'}
-          fill={data.color || '#E2E8F0'}
           width={object.width}
           height={object.height}
-          align={data.align || 'left'}
-          lineHeight={data.lineHeight || 1.4}
+          fill="transparent"
           onDblClick={handleDoubleClick}
           onDblTap={handleDoubleClick}
-          opacity={object.opacity ?? 1}
         />
       )}
     </Group>

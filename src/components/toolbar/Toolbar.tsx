@@ -17,7 +17,6 @@ import MicIcon from '@mui/icons-material/Mic';
 import CleaningServicesIcon from '@mui/icons-material/CleaningServices';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import MapIcon from '@mui/icons-material/Map';
-import CircleIcon from '@mui/icons-material/Circle';
 
 export interface ToolbarProps {
   onAddObject?: (type: string, extraData?: Record<string, unknown>) => void;
@@ -36,9 +35,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({ onAddObject }) => {
   const toggleMiniMap = useUIStore((state) => state.toggleMiniMap);
   const showMiniMap = useUIStore((state) => state.showMiniMap);
   const addToast = useUIStore((state) => state.addToast);
-
   const [showShapeMenu, setShowShapeMenu] = useState(false);
-  const [showColorPicker, setShowColorPicker] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const { isRecording, startRecording, stopRecording } = useAudioRecorder();
@@ -93,10 +90,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({ onAddObject }) => {
     { type: 'star', label: 'Star', icon: '★' },
     { type: 'hexagon', label: 'Hexagon', icon: '⬡' },
     { type: 'arrow', label: 'Arrow', icon: '➔' },
-  ];
-
-  const paletteColors = [
-    '#ffffff', '#0d99ff', '#6d43c6', '#ba1a1a', '#2e7d32', '#ed6c02', '#000000'
   ];
 
   return (
@@ -246,31 +239,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({ onAddObject }) => {
 
         <div className="w-8 h-px bg-outline-variant/30 my-1" />
 
-        {/* Color Palette Selector */}
-        <div className="relative">
-          <button
-            onClick={() => setShowColorPicker(!showColorPicker)}
-            className="group relative flex items-center justify-center p-2 rounded-full hover:bg-surface-container-high active:scale-95 transition-all"
-            title="Color Palette"
-          >
-            <CircleIcon style={{ color: currentColor }} fontSize="small" />
-          </button>
-          {showColorPicker && (
-            <div className="absolute left-16 top-0 z-50 p-2 bg-white/95 border border-outline-variant/30 shadow-2xl rounded-2xl flex flex-col gap-1.5 w-10 animate-in fade-in zoom-in-95">
-              {paletteColors.map((c) => (
-                <button
-                  key={c}
-                  className="w-6 h-6 rounded-full border border-outline-variant shadow-sm transition-transform hover:scale-110"
-                  style={{ backgroundColor: c }}
-                  onClick={() => {
-                    setCurrentColor(c);
-                    setShowColorPicker(false);
-                  }}
-                />
-              ))}
-            </div>
-          )}
-        </div>
+
 
         {/* Physics Toggle */}
         <button

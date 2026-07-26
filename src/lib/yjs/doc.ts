@@ -22,6 +22,7 @@ export interface YjsRoomDoc {
   zIndexArray: Y.Array<string>;
   snapshotsArray: Y.Array<any>;
   roomMetaMap: Y.Map<any>;
+  assetsArray: Y.Array<string>;
 }
 
 /**
@@ -37,6 +38,7 @@ export function createYjsRoomDoc(roomId: string): YjsRoomDoc {
   const zIndexArray = doc.getArray<string>('zIndexOrder');
   const snapshotsArray = doc.getArray<any>('snapshots');
   const roomMetaMap = doc.getMap<any>('roomMeta');
+  const assetsArray = doc.getArray<string>('assets');
 
   return {
     doc,
@@ -44,5 +46,6 @@ export function createYjsRoomDoc(roomId: string): YjsRoomDoc {
     zIndexArray,
     snapshotsArray,
     roomMetaMap,
+    assetsArray,
   };
 }

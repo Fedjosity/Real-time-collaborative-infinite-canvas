@@ -106,7 +106,7 @@ export default function RoomPage({ params }: RoomPageProps) {
   }, []);
 
   // Yjs Real-Time CRDT Sync hook
-  const { objects, awareness, addObject, updateObject, deleteObject, undo, redo } = useYjs(
+  const { objects, assets, awareness, addObject, updateObject, deleteObject, undo, redo, addAsset } = useYjs(
     roomId,
     localUser,
   );
@@ -381,7 +381,23 @@ export default function RoomPage({ params }: RoomPageProps) {
       </header>
 
       {/* Main Canvas Component Surface */}
-      <div className="flex-1 w-full h-full relative pt-16">
+      <div 
+        className="flex-1 w-full h-full relative pt-16"
+        onDragOver={(e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'copy';
+        }}
+        onDrop={(e) => {
+          e.preventDefault();
+          const src = e.dataTransfer.getData('text/plain');
+          if (src && addObject) {
+            const rect = e.currentTarget.getBoundingClientRect();
+            const x = (e.clientX - rect.left - camera.x) / camera.scale;
+            const y = (e.clientY - rect.top - camera.y) / camera.scale;
+            addObject('image', { x, y }, { src, alt: 'Dropped Asset' });
+          }
+        }}
+      >
         <CanvasStage
           objects={
             isReplaying && snapshots[snapshotIndex]
@@ -461,6 +477,8 @@ export default function RoomPage({ params }: RoomPageProps) {
           updateObject={updateObject}
           isOpenMobile={isPropertiesOpen}
           setIsOpenMobile={setIsPropertiesOpen}
+          assets={assets}
+          addAsset={addAsset}
         />
       </div>
 

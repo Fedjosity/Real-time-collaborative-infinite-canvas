@@ -33,12 +33,14 @@ import {
 
 export function useYjs(roomId: string, localUser: LocalUser | null) {
   const [objects, setObjects] = useState<CanvasObject[]>([]);
+  const [assets, setAssets] = useState<string[]>([]);
   const [provider, setProvider] = useState<WebsocketProvider | null>(null);
   const [isSynced, setIsSynced] = useState(false);
 
   const docRef = useRef<Y.Doc | null>(null);
   const objectsMapRef = useRef<Y.Map<CanvasObject> | null>(null);
   const zIndexArrayRef = useRef<Y.Array<string> | null>(null);
+  const assetsArrayRef = useRef<Y.Array<string> | null>(null);
   const undoManagerRef = useRef<Y.UndoManager | null>(null);
 
   const setConnectionStatus = useRoomStore((state) => state.setConnectionStatus);
@@ -49,10 +51,11 @@ export function useYjs(roomId: string, localUser: LocalUser | null) {
   useEffect(() => {
     if (!roomId) return;
 
-    const { doc, objectsMap, zIndexArray, roomMetaMap } = createYjsRoomDoc(roomId);
+    const { doc, objectsMap, zIndexArray, roomMetaMap, assetsArray } = createYjsRoomDoc(roomId);
     docRef.current = doc;
     objectsMapRef.current = objectsMap;
     zIndexArrayRef.current = zIndexArray;
+    assetsArrayRef.current = assetsArray;
     undoManagerRef.current = new Y.UndoManager(objectsMap);
 
     const { wsProvider, destroy } = createYjsProviders({
@@ -83,9 +86,17 @@ export function useYjs(roomId: string, localUser: LocalUser | null) {
 
     roomMetaMap.observe(handleMetaChange);
 
+    // Sync assets
+    const handleAssetsChange = () => {
+      setAssets(assetsArray.toArray());
+    };
+    handleAssetsChange();
+    assetsArray.observe(handleAssetsChange);
+
     return () => {
       objectsMap.unobserve(handleObjectsChange);
       roomMetaMap.unobserve(handleMetaChange);
+      assetsArray.unobserve(handleAssetsChange);
       undoManagerRef.current?.destroy();
       destroy();
     };
@@ -214,9 +225,14 @@ export function useYjs(roomId: string, localUser: LocalUser | null) {
     undoManagerRef.current?.redo();
   }, []);
 
+  const addAsset = useCallback((assetUrl: string) => {
+    assetsArrayRef.current?.push([assetUrl]);
+  }, []);
+
   return {
     doc: docRef.current,
     objects,
+    assets,
     provider,
     awareness: provider?.awareness || null,
     isSynced,
@@ -226,5 +242,6 @@ export function useYjs(roomId: string, localUser: LocalUser | null) {
     setRoomPhysicsMeta,
     undo,
     redo,
+    addAsset,
   };
 }
