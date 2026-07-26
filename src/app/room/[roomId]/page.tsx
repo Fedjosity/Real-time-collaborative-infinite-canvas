@@ -15,6 +15,7 @@ import { TimeTravelBar } from "@/components/timetravel/TimeTravelBar";
 import { ExportMenu } from "@/components/export/ExportMenu";
 import { JoinModal } from "@/components/auth/JoinModal";
 import { Modal } from "@/components/ui/Modal";
+import { PropertiesPanel } from "@/components/properties/PropertiesPanel";
 import { useYjs } from "@/hooks/useYjs";
 import { useAwareness } from "@/hooks/useAwareness";
 import { usePhysics } from "@/hooks/usePhysics";
@@ -61,6 +62,7 @@ export default function RoomPage({ params }: RoomPageProps) {
   const [snapshots, setSnapshots] = useState<CanvasSnapshot[]>([]);
   const [snapshotIndex, setSnapshotIndex] = useState(0);
   const [showUsersModal, setShowUsersModal] = useState(false);
+  const [isPropertiesOpen, setIsPropertiesOpen] = useState(false);
 
   const camera = useCanvasStore((state) => state.camera);
   const setCamera = useCanvasStore((state) => state.setCamera);
@@ -333,6 +335,19 @@ export default function RoomPage({ params }: RoomPageProps) {
             <HelpIcon />
           </button>
 
+          {/* Properties Toggle (Mobile only) */}
+          <button
+            onClick={() => setIsPropertiesOpen(!isPropertiesOpen)}
+            className={`p-2 rounded-full transition-all active:scale-95 lg:hidden ${
+              isPropertiesOpen
+                ? "bg-primary-container text-primary"
+                : "text-on-surface-variant hover:bg-surface-container-high"
+            }`}
+            title="Toggle Properties"
+          >
+            <span className="material-symbols-outlined">tune</span>
+          </button>
+
           {/* Export Menu Dropdown */}
           <ExportMenu
             objects={objects}
@@ -435,10 +450,18 @@ export default function RoomPage({ params }: RoomPageProps) {
 
         {/* Bottom-Right Mini-Map Widget (Visible if toggled or on desktop) */}
         {showMiniMap && (
-          <div className="fixed bottom-24 md:bottom-6 right-4 z-40">
+          <div className="fixed bottom-24 md:bottom-6 right-4 z-40 lg:mr-[280px]">
             <MiniMap objects={objects} users={remoteUsers} />
           </div>
         )}
+
+        {/* Properties Panel (Right Sidebar) */}
+        <PropertiesPanel
+          objects={objects}
+          updateObject={updateObject}
+          isOpenMobile={isPropertiesOpen}
+          setIsOpenMobile={setIsPropertiesOpen}
+        />
       </div>
 
       {/* Guest Authentication Join Modal */}
